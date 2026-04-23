@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chang Gate · 阊门 · Through Time</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IM+Fell+English:ital@0;1&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── Loading Screen ── -->
+  <div id="loading-screen">
+    <div class="loading-inner">
+      <div class="loading-gate-icon">
+        <svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="40" width="76" height="18" fill="currentColor" opacity="0.15"/>
+          <rect x="10" y="20" width="14" height="38" fSill="currentColor" opacity="0.4"/>
+          <rect x="56" y="20" width="14" height="38" fill="currentColor" opacity="0.4"/>
+          <path d="M10 20 Q40 0 70 20" stroke="currentColor" stroke-width="2.5" fill="none" opacity="0.7"/>
+          <rect x="32" y="32" width="16" height="26" fill="currentColor" opacity="0.6"/>
+          <rect x="18" y="28" width="10" height="12" fill="currentColor" opacity="0.3"/>
+          <rect x="52" y="28" width="10" height="12" fill="currentColor" opacity="0.3"/>
+        </svg>
+      </div>
+      <p class="loading-zh">阊门</p>
+      <p class="loading-en">Chang Gate · Suzhou</p>
+      <div class="loading-bar"><div class="loading-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- ── App Shell ── -->
+  <div id="app" class="hidden">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <span class="header-zh">阊门</span>
+        <span class="header-divider">·</span>
+        <span class="header-en">Chang Gate</span>
+      </div>
+      <div class="header-right">
+        <span class="header-location">Suzhou, China</span>
+      </div>
+    </header>
+
+    <!-- Main photo viewer -->
+    <main class="viewer">
+
+      <!-- Era label strip -->
+      <div class="era-strip">
+        <span id="era-period" class="era-period">loading...</span>
+        <span id="era-year" class="era-year"></span>
+      </div>
+
+      <!-- Photo container -->
+      <div class="photo-container" id="photo-container">
+        <div class="photo-frame" id="photo-frame">
+          <!-- image injected by JS -->
+          <img id="main-photo" src="" alt="" />
+          <div class="photo-overlay"></div>
+          <!-- Tap to reveal info -->
+          <button class="info-trigger" id="info-trigger" aria-label="Show historical context">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <!-- Swipe hint (shown once) -->
+          <div class="swipe-hint" id="swipe-hint">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            swipe to travel
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+
+        <!-- Nav arrows -->
+        <button class="nav-arrow nav-prev" id="nav-prev" aria-label="Previous era">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="nav-arrow nav-next" id="nav-next" aria-label="Next era">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <!-- Info card (slides up on tap) -->
+      <div class="info-card hidden" id="info-card">
+        <button class="info-close" id="info-close" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <p class="info-card-label">Historical context</p>
+        <h2 id="info-title" class="info-card-title"></h2>
+        <p id="info-body" class="info-card-body"></p>
+        <div class="info-card-footer">
+          <span id="info-source" class="info-source"></span>
+        </div>
+      </div>
+
+      <!-- Timeline scrubber -->
+      <div class="timeline-section">
+        <div class="timeline-labels">
+          <span id="tl-start" class="tl-label"></span>
+          <span class="tl-center-label">drag to explore</span>
+          <span id="tl-end" class="tl-label"></span>
+        </div>
+        <div class="timeline-track" id="timeline-track">
+          <div class="timeline-rail"></div>
+          <div class="timeline-progress" id="timeline-progress"></div>
+          <!-- Era dots injected by JS -->
+          <div class="era-dots" id="era-dots"></div>
+          <div class="timeline-handle" id="timeline-handle" role="slider" tabindex="0" aria-label="Timeline">
+            <div class="handle-inner"></div>
+          </div>
+        </div>
+        <div class="dot-labels" id="dot-labels"></div>
+      </div>
+
+      <!-- Dot indicators -->
+      <div class="dot-nav" id="dot-nav" role="tablist" aria-label="Eras"></div>
+
+    </main>
+
+    <!-- Bottom caption strip -->
+    <footer class="caption-strip">
+      <p id="caption-text" class="caption-text"></p>
+      <span id="photo-counter" class="photo-counter"></span>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
