@@ -1,0 +1,116 @@
+{
+  "landmark": {
+    "name": "Chang Gate",
+    "chineseName": "阊门",
+    "city": "Suzhou",
+    "country": "China",
+    "coordinates": { "lat": 31.3133, "lng": 120.5736 }
+  },
+  "eras": [
+    {
+      "id": "han-dynasty",
+      "period": "Western Han Dynasty",
+      "year": "c. 202 BCE",
+      "yearNumeric": -202,
+      "photo": "images/era_han.jpg",
+      "photoAlt": "Artistic reconstruction of Chang Gate during Western Han Dynasty",
+      "caption": "First constructed as a grand western gate of the ancient city of Gusu.",
+      "sepia": 0.9,
+      "info": {
+        "title": "Origins — The Gate of Wu",
+        "body": "Chang Gate traces its origins to the ancient city of Gusu, founded during the Spring and Autumn period. Under the Han Dynasty it served as one of the eight great gates of Suzhou's city wall, guarding the vital waterway route westward toward the Grand Canal. Merchants, soldiers and scholars passed beneath its arch for generations.",
+        "source": "Suzhou Municipal Museum, Historical Records"
+      }
+    },
+    {
+      "id": "tang-dynasty",
+      "period": "Tang Dynasty",
+      "year": "c. 618–907 CE",
+      "yearNumeric": 700,
+      "photo": "images/era_tang.jpg",
+      "photoAlt": "Chang Gate area during the Tang Dynasty",
+      "caption": "The gate district flourished as a thriving commercial hub along the Grand Canal.",
+      "sepia": 0.8,
+      "info": {
+        "title": "Tang Prosperity — A City of Silk",
+        "body": "During the Tang dynasty Suzhou was renowned across the empire for its silk weaving and canal commerce. Chang Gate stood at the city's busiest waterfront quarter. Poet Zhang Ji's famous verse 'Maple Bridge Night Mooring' was written just outside these walls, immortalising the sound of Hanshan Temple's bell drifting across the water at midnight.",
+        "source": "Tang Poetry Archive; Zhang Ji, 'Fēng Qiáo Yè Bó' (楓橋夜泊)"
+      }
+    },
+    {
+      "id": "song-dynasty",
+      "period": "Song Dynasty",
+      "year": "c. 960–1279 CE",
+      "yearNumeric": 1100,
+      "photo": "images/era_song.jpg",
+      "photoAlt": "Chang Gate during the prosperous Song Dynasty",
+      "caption": "Expanded city walls and a grand double-arched gate tower were constructed.",
+      "sepia": 0.75,
+      "info": {
+        "title": "Song Expansion — The Double Tower",
+        "body": "The Song era brought major reconstruction to Chang Gate, adding the distinctive double-tower gatehouse that would define its silhouette for centuries. The canal district outside the gate became one of the wealthiest commercial quarters in all of southern China, with warehouses for silk, ceramics and grain lining the waterfront.",
+        "source": "Pingjiang Map (平江圖), 1229 CE — oldest surviving city map of Suzhou"
+      }
+    },
+    {
+      "id": "ming-dynasty",
+      "period": "Ming Dynasty",
+      "year": "c. 1368–1644 CE",
+      "yearNumeric": 1500,
+      "photo": "images/era_ming.jpg",
+      "photoAlt": "Chang Gate's grand Ming Dynasty fortifications",
+      "caption": "Massive fortification upgrades transformed Chang Gate into a formidable military bastion.",
+      "sepia": 0.65,
+      "info": {
+        "title": "Ming Fortification — Walls of Stone",
+        "body": "The Ming dynasty oversaw ambitious expansions of Suzhou's city walls, reinforcing Chang Gate with thick granite masonry and a deep defensive moat. The gate complex grew to include watchtowers and garrison barracks. Despite its military might, the surrounding neighbourhood remained a centre for commerce and the arts — garden culture flourished just inside the walls.",
+        "source": "Ming Shilu (明實錄), Suzhou Gazetteer"
+      }
+    },
+    {
+      "id": "qing-dynasty-1800s",
+      "period": "Qing Dynasty",
+      "year": "c. 1860s–1890s",
+      "yearNumeric": 1875,
+      "photo": "images/era_qing.jpg",
+      "photoAlt": "Historical photograph of Chang Gate circa 1880",
+      "caption": "Early photographs capture the gate in its Qing-era form — battered but still standing.",
+      "sepia": 0.5,
+      "info": {
+        "title": "Qing Decline — Cameras Arrive",
+        "body": "The Taiping Rebellion (1850–64) left Suzhou in ruins. Chang Gate suffered serious damage during the conflict but was partially restored under the late Qing. Western missionaries and photographers arrived in the 1870s–90s, leaving behind some of the earliest photographs of the gate and its canal environs — remarkable documents of a city caught between its ancient past and an uncertain modern future.",
+        "source": "John Thomson photographic archive, c. 1870; Suzhou City Archives"
+      }
+    },
+    {
+      "id": "republic-era",
+      "period": "Republic of China",
+      "year": "1912–1949",
+      "yearNumeric": 1930,
+      "photo": "images/era_republic.jpg",
+      "photoAlt": "Chang Gate area in the Republican era",
+      "caption": "Modernisation transformed the canal banks while the ancient gate stood witness.",
+      "sepia": 0.35,
+      "info": {
+        "title": "Republican Suzhou — Old Meets New",
+        "body": "The early twentieth century brought roads, trams and electricity to Suzhou. Much of the original city wall was demolished during this period to make way for modern roads, but Chang Gate and its adjacent wall sections were preserved. The canal district outside continued its centuries-old commercial life alongside new factories and Western-style shophouses.",
+        "source": "Suzhou Municipal Archives, 1920s–40s survey photographs"
+      }
+    },
+    {
+      "id": "modern",
+      "period": "Contemporary",
+      "year": "Present day",
+      "yearNumeric": 2024,
+      "photo": "images/era_modern.jpg",
+      "photoAlt": "Chang Gate today, restored as a heritage landmark",
+      "caption": "Restored and designated a national heritage site, Chang Gate welcomes visitors from around the world.",
+      "sepia": 0.0,
+      "info": {
+        "title": "Heritage Today — 阊门 Restored",
+        "body": "Chang Gate was declared a national heritage site and underwent comprehensive restoration in the 1990s and 2000s. Today the gate tower and a section of the original city wall stand as the centrepiece of a public park. The surrounding Shantang Street canal district — running from the gate westward to Tiger Hill — has been restored as a living heritage quarter of traditional shops, teahouses and gardens.",
+        "source": "Suzhou Heritage Conservation Bureau, 2010"
+      }
+    }
+  ]
+}
