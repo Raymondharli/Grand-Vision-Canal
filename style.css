@@ -1,0 +1,605 @@
+/* ── Chang Gate · 阊门 · Style Sheet ──────────────────────────────────── */
+/* Aesthetic: aged editorial — dark ink, warm sepia, classical typography  */
+
+:root {
+  --ink:       #1a1209;
+  --ink-mid:   #3d2f1a;
+  --ink-soft:  #6b5740;
+  --parchment: #f5edd8;
+  --parchment-dark: #e8d9b8;
+  --parchment-deeper: #d9c49a;
+  --sepia:     #c8a96e;
+  --sepia-dark:#9a7540;
+  --gold:      #b8913a;
+  --aged-red:  #8b3a2a;
+  --paper:     #faf5e8;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Source Serif 4', Georgia, serif;
+  --font-fell:    'IM Fell English', Georgia, serif;
+
+  --radius:    4px;
+  --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink);
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--ink);
+  overscroll-behavior: none;
+}
+
+.hidden { display: none !important; }
+
+/* ── Loading Screen ──────────────────────────────────────────────────── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: opacity 0.6s ease;
+}
+
+#loading-screen.fade-out { opacity: 0; pointer-events: none; }
+
+.loading-inner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.loading-gate-icon {
+  width: 80px;
+  color: var(--sepia);
+  opacity: 0;
+  animation: fadeIn 0.8s 0.2s forwards;
+}
+
+.loading-zh {
+  font-family: var(--font-display);
+  font-size: 42px;
+  color: var(--parchment);
+  letter-spacing: 0.2em;
+  opacity: 0;
+  animation: fadeIn 0.8s 0.5s forwards;
+}
+
+.loading-en {
+  font-family: var(--font-fell);
+  font-size: 13px;
+  color: var(--sepia);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeIn 0.8s 0.7s forwards;
+}
+
+.loading-bar {
+  width: 120px;
+  height: 1px;
+  background: rgba(200,169,110,0.2);
+  margin-top: 16px;
+  opacity: 0;
+  animation: fadeIn 0.5s 0.9s forwards;
+}
+
+.loading-fill {
+  height: 100%;
+  background: var(--sepia);
+  width: 0;
+  animation: loadBar 1.8s 1s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+@keyframes loadBar { to { width: 100%; } }
+@keyframes fadeIn  { to { opacity: 1; } }
+
+/* ── App Shell ───────────────────────────────────────────────────────── */
+#app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  /* Subtle paper texture */
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(184,145,58,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(139,58,42,0.03) 0%, transparent 50%);
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px 10px;
+  border-bottom: 0.5px solid var(--parchment-deeper);
+  background: var(--paper);
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.header-zh {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.05em;
+}
+
+.header-divider {
+  color: var(--sepia-dark);
+  font-size: 14px;
+}
+
+.header-en {
+  font-family: var(--font-fell);
+  font-size: 14px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.header-location {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--sepia-dark);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ── Main Viewer ─────────────────────────────────────────────────────── */
+.viewer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Era Strip ───────────────────────────────────────────────────────── */
+.era-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 20px 6px;
+  flex-shrink: 0;
+}
+
+.era-period {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  transition: opacity var(--transition);
+}
+
+.era-year {
+  font-family: var(--font-fell);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-soft);
+  transition: opacity var(--transition);
+}
+
+/* ── Photo Container ─────────────────────────────────────────────────── */
+.photo-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  margin: 0 16px;
+  border-radius: 6px;
+  /* Aged frame border */
+  box-shadow:
+    0 0 0 1px var(--parchment-deeper),
+    0 0 0 3px var(--paper),
+    0 0 0 4px var(--parchment-deeper),
+    inset 0 0 40px rgba(26,18,9,0.15);
+  background: var(--ink);
+}
+
+.photo-frame {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+#main-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Sepia filter by default — can be overridden per-photo */
+  filter: sepia(0.6) contrast(1.05) brightness(0.92);
+  transition: opacity 0.5s ease, filter 0.8s ease;
+}
+
+#main-photo.transitioning { opacity: 0; }
+
+/* Photo overlay — vignette */
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(26,18,9,0.55) 100%);
+  pointer-events: none;
+}
+
+/* Swipe hint */
+.swipe-hint {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(26,18,9,0.55);
+  color: var(--parchment);
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 6px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  animation: hintPulse 2s 2s ease-in-out 2 forwards;
+  opacity: 1;
+}
+
+.swipe-hint svg { flex-shrink: 0; }
+.swipe-hint.gone { display: none; }
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Info trigger button */
+.info-trigger {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(26,18,9,0.5);
+  border: 1px solid rgba(200,169,110,0.4);
+  color: var(--parchment);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.info-trigger:hover,
+.info-trigger:focus-visible {
+  background: rgba(200,169,110,0.3);
+  transform: scale(1.1);
+  outline: none;
+}
+
+/* ── Nav Arrows ──────────────────────────────────────────────────────── */
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(250,245,232,0.85);
+  border: 0.5px solid var(--parchment-deeper);
+  color: var(--ink-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, opacity 0.3s;
+  z-index: 5;
+  backdrop-filter: blur(4px);
+}
+
+.nav-prev { left: 10px; }
+.nav-next { right: 10px; }
+
+.nav-arrow:hover { background: var(--paper); transform: translateY(-50%) scale(1.08); }
+.nav-arrow:active { transform: translateY(-50%) scale(0.95); }
+.nav-arrow:disabled { opacity: 0.2; cursor: default; }
+
+/* ── Info Card ───────────────────────────────────────────────────────── */
+.info-card {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--paper);
+  border-top: 1px solid var(--parchment-deeper);
+  padding: 20px 20px 16px;
+  z-index: 20;
+  animation: slideUp 0.35s cubic-bezier(0.4,0,0.2,1);
+  /* Aged paper texture on card */
+  box-shadow: 0 -8px 32px rgba(26,18,9,0.15);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.info-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--parchment-dark);
+  border: none;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.info-close:hover { background: var(--parchment-deeper); }
+
+.info-card-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sepia-dark);
+  margin-bottom: 6px;
+}
+
+.info-card-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.info-card-body {
+  font-family: var(--font-fell);
+  font-size: 14px;
+  color: var(--ink-mid);
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+.info-card-footer {
+  border-top: 0.5px solid var(--parchment-deeper);
+  padding-top: 8px;
+}
+
+.info-source {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--sepia-dark);
+  font-style: italic;
+}
+
+/* ── Timeline Scrubber ───────────────────────────────────────────────── */
+.timeline-section {
+  padding: 12px 20px 6px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.timeline-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tl-label {
+  font-family: var(--font-fell);
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.tl-center-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sepia-dark);
+}
+
+.timeline-track {
+  position: relative;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.timeline-rail {
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--parchment-deeper);
+}
+
+.timeline-progress {
+  position: absolute;
+  left: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width 0.35s ease;
+}
+
+/* Era dots on timeline */
+.era-dots { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); }
+
+.era-dot-mark {
+  position: absolute;
+  top: 50%; transform: translate(-50%, -50%);
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--parchment-deeper);
+  border: 1px solid var(--sepia-dark);
+  transition: background 0.3s, transform 0.3s;
+  cursor: pointer;
+}
+
+.era-dot-mark.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  transform: translate(-50%, -50%) scale(1.5);
+  box-shadow: 0 0 0 3px rgba(184,145,58,0.2);
+}
+
+/* Timeline handle */
+.timeline-handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px; height: 22px;
+  cursor: grab;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: none;
+  z-index: 5;
+}
+
+.timeline-handle:active { cursor: grabbing; }
+
+.handle-inner {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--gold);
+  box-shadow: 0 2px 8px rgba(26,18,9,0.2);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.timeline-handle:active .handle-inner,
+.timeline-handle:focus-visible .handle-inner {
+  transform: scale(1.2);
+  border-color: var(--sepia-dark);
+}
+
+.timeline-handle:focus-visible { outline: none; }
+
+.dot-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+/* ── Dot Nav ─────────────────────────────────────────────────────────── */
+.dot-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 20px 4px;
+  flex-shrink: 0;
+}
+
+.dot-btn {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--parchment-deeper);
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+  padding: 0;
+}
+
+.dot-btn.active {
+  background: var(--gold);
+  transform: scale(1.35);
+}
+
+/* ── Caption Strip ───────────────────────────────────────────────────── */
+.caption-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px 14px;
+  border-top: 0.5px solid var(--parchment-deeper);
+  background: var(--paper);
+  flex-shrink: 0;
+}
+
+.caption-text {
+  font-family: var(--font-fell);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  flex: 1;
+  padding-right: 12px;
+  max-width: 85%;
+}
+
+.photo-counter {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--sepia-dark);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* ── Swipe / touch transition classes ────────────────────────────────── */
+.photo-frame.slide-left  { animation: slidePhotoLeft  0.38s cubic-bezier(0.4,0,0.2,1); }
+.photo-frame.slide-right { animation: slidePhotoRight 0.38s cubic-bezier(0.4,0,0.2,1); }
+
+@keyframes slidePhotoLeft {
+  from { transform: translateX(6%); opacity: 0; }
+  to   { transform: translateX(0);  opacity: 1; }
+}
+@keyframes slidePhotoRight {
+  from { transform: translateX(-6%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+
+/* Era change text flash */
+.era-period.flash,
+.era-year.flash {
+  animation: textFlash 0.5s ease;
+}
+
+@keyframes textFlash {
+  0%   { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive tweaks ───────────────────────────────────────────────── */
+@media (max-height: 700px) {
+  .era-strip    { padding: 6px 20px 4px; }
+  .era-period   { font-size: 15px; }
+  .caption-text { font-size: 12px; }
+}
+
+@media (min-width: 481px) {
+  /* Slight shadow to ground the card on larger screens */
+  #app { box-shadow: 0 0 60px rgba(0,0,0,0.5); }
+}
