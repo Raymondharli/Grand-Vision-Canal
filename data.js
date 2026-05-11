@@ -1,9 +1,5 @@
-/**
- * data.js — Chang Gate · all static data
- * Loaded before app.js via <script src="data.js">
- */
 
-/* ── Era data ─────────────────────────────────────────────────── */
+
 const ERAS = [
   {
     id: 'spring-autumn',
@@ -109,7 +105,6 @@ const ERAS = [
   }
 ];
 
-/* ── Puzzle layers — index = correct top-to-bottom position ─────── */
 const PUZZLE_LAYERS = [
   {
     id: 'roof',
@@ -143,7 +138,6 @@ const PUZZLE_LAYERS = [
   }
 ];
 
-/* ── Treasure — one hidden zone per era ────────────────────────── */
 const TREASURE_DATA = [
   {
     eraId: 'spring-autumn',
@@ -176,14 +170,13 @@ const TREASURE_DATA = [
     zone: { x: 55, y: 30, w: 28, h: 28 }
   },
   {
-    eraId: 'contemporary',
+    eraId: 'modern-era',
     clue: 'The heritage plaque is mounted on the restored wall. Look to the lower-centre of the gate.',
     relic: 'National Heritage Plaque',
     zone: { x: 35, y: 60, w: 30, h: 25 }
   }
 ];
 
-/* ── Chat knowledge base — local, no API ───────────────────────── */
 const CHAT_KB = [
   {
     keys: ['wu zixu', '伍子胥', 'who built', 'who founded', 'founder', 'founded', 'origin', 'first built', 'when built', 'spring autumn', 'state of wu', 'gusu'],
