@@ -72,7 +72,8 @@
     isDragging:  false,
     hintShown:   false,
     // Puzzle: array of layer IDs in current slot order (null = empty)
-    puzzleSlots: [null, null, null, null, null],
+    // Sized from PUZZLE_LAYERS at init time, not hardcoded
+    puzzleSlots: [],
     puzzleInited: false,
     // Treasure
     tIndex:      0,
@@ -129,10 +130,18 @@
      TIMELINE — navigation
   ═══════════════════════════════════════════════════════════ */
   NAV_PREV.addEventListener('click', () => {
-    if (S.eraIndex > 0) renderEra(S.eraIndex - 1, 'right');
+    if (S.eraIndex > 0) { renderEra(S.eraIndex - 1, 'right'); hideHint(); }
   });
   NAV_NEXT.addEventListener('click', () => {
-    if (S.eraIndex < eras.length - 1) renderEra(S.eraIndex + 1, 'left');
+    if (S.eraIndex < eras.length - 1) { renderEra(S.eraIndex + 1, 'left'); hideHint(); }
+  });
+
+  // Keyboard support on the timeline handle itself (role="slider")
+  TL_HANDLE.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft'  && S.eraIndex > 0)              { renderEra(S.eraIndex - 1, 'right'); e.preventDefault(); }
+    if (e.key === 'ArrowRight' && S.eraIndex < eras.length - 1) { renderEra(S.eraIndex + 1, 'left');  e.preventDefault(); }
+    if (e.key === 'Home') { renderEra(0, 'right'); e.preventDefault(); }
+    if (e.key === 'End')  { renderEra(eras.length - 1, 'left'); e.preventDefault(); }
   });
 
   document.addEventListener('keydown', e => {
@@ -243,7 +252,7 @@
     const img = new Image();
     img.onload = () => {
       MAIN_PHOTO.src          = era.photo;
-      MAIN_PHOTO.alt          = era.photoAlt;
+      MAIN_PHOTO.alt          = era.photoAlt || `${era.period} — Chang Gate`;
       MAIN_PHOTO.style.filter = `sepia(${era.sepia}) contrast(1.08) brightness(0.88)`;
       MAIN_PHOTO.classList.remove('transitioning', 'no-image');
       ERA_PH.style.display    = 'none';
@@ -272,6 +281,12 @@
     });
     NAV_PREV.disabled = index === 0;
     NAV_NEXT.disabled = index === eras.length - 1;
+
+    // Slider a11y
+    TL_HANDLE.setAttribute('aria-valuemin', '1');
+    TL_HANDLE.setAttribute('aria-valuemax', String(eras.length));
+    TL_HANDLE.setAttribute('aria-valuenow', String(index + 1));
+    TL_HANDLE.setAttribute('aria-valuetext', `${era.period} (${era.year})`);
   }
 
   /* ── Timeline helpers ───────────────────────────────────── */
@@ -344,8 +359,50 @@
      Correct order top→bottom: index 0..4 of PUZZLE_LAYERS
   ═══════════════════════════════════════════════════════════ */
   function initPuzzle() {
-    S.puzzleSlots = [null, null, null, null, null];
+    S.puzzleSlots = new Array(PUZZLE_LAYERS.length).fill(null);
     renderPuzzleUI();
+  }
+
+  // Tiny silhouette of each gate layer — fills the slot when a piece is placed
+  function getLayerSvg(layerId) {
+    const c = '#c8a96e';
+    switch (layerId) {
+      case 'roof':
+        return `<svg viewBox="0 0 70 32" width="62" height="28" fill="none" stroke="${c}" stroke-width="1.4" stroke-linecap="round">
+          <path d="M5,26 Q35,4 65,26"/>
+          <line x1="5" y1="26" x2="9" y2="22"/>
+          <line x1="65" y1="26" x2="61" y2="22"/>
+          <circle cx="35" cy="13" r="1.2" fill="${c}"/>
+        </svg>`;
+      case 'tower':
+        return `<svg viewBox="0 0 70 32" width="62" height="28" fill="none" stroke="${c}" stroke-width="1.4" stroke-linejoin="round">
+          <rect x="10" y="6" width="50" height="22" rx="1"/>
+          <rect x="18" y="12" width="8" height="9" fill="${c}" fill-opacity="0.22"/>
+          <rect x="44" y="12" width="8" height="9" fill="${c}" fill-opacity="0.22"/>
+        </svg>`;
+      case 'arch':
+        return `<svg viewBox="0 0 70 32" width="62" height="28" fill="none" stroke="${c}" stroke-width="1.4" stroke-linejoin="round">
+          <rect x="6" y="4" width="58" height="24" rx="1"/>
+          <path d="M28,28 L28,18 Q35,10 42,18 L42,28" fill="${c}" fill-opacity="0.20"/>
+        </svg>`;
+      case 'wall':
+        return `<svg viewBox="0 0 70 32" width="62" height="28" fill="none" stroke="${c}" stroke-width="1.4" stroke-linejoin="round">
+          <rect x="3" y="8" width="64" height="20" rx="1"/>
+          <line x1="3"  y1="17" x2="67" y2="17" opacity="0.5"/>
+          <line x1="20" y1="8"  x2="20" y2="17" opacity="0.5"/>
+          <line x1="50" y1="8"  x2="50" y2="17" opacity="0.5"/>
+          <line x1="12" y1="17" x2="12" y2="28" opacity="0.5"/>
+          <line x1="35" y1="17" x2="35" y2="28" opacity="0.5"/>
+          <line x1="58" y1="17" x2="58" y2="28" opacity="0.5"/>
+        </svg>`;
+      case 'canal':
+        return `<svg viewBox="0 0 70 32" width="62" height="28" fill="none" stroke="${c}" stroke-width="1.3" stroke-linecap="round" opacity="0.85">
+          <path d="M3,12 Q15,6 27,12 T51,12 T75,12"/>
+          <path d="M3,20 Q15,14 27,20 T51,20 T75,20"/>
+          <path d="M3,28 Q15,22 27,28 T51,28 T75,28"/>
+        </svg>`;
+    }
+    return '';
   }
 
   function renderPuzzleUI() {
@@ -374,11 +431,13 @@
 
     document.getElementById('pz-check').addEventListener('click', checkPuzzle);
     document.getElementById('pz-shuffle').addEventListener('click', () => {
-      S.puzzleSlots = [null, null, null, null, null];
+      S.puzzleSlots = new Array(PUZZLE_LAYERS.length).fill(null);
       S._trayOrder  = PUZZLE_LAYERS.map(l => l.id).sort(() => Math.random() - 0.5);
       S._selectedPiece = null;
+      const fb = document.getElementById('pz-feedback');
+      fb.classList.add('hidden');
+      fb.textContent = '';
       document.getElementById('pz-success').classList.add('hidden');
-      document.getElementById('pz-feedback').classList.add('hidden');
       buildPzSlots();
       buildPzTray();
     });
@@ -401,6 +460,12 @@
 
       if (layerId !== null) {
         const layer = PUZZLE_LAYERS.find(l => l.id === layerId);
+
+        const glyph = document.createElement('div');
+        glyph.className = 'pz-slot-glyph';
+        glyph.innerHTML = getLayerSvg(layerId);
+        slot.appendChild(glyph);
+
         const content = document.createElement('div');
         content.className = 'pz-slot-content';
         content.innerHTML = `<span class="pz-slot-name">${layer.name}</span><span class="pz-slot-zh">${layer.nameZh}</span>`;
@@ -553,9 +618,10 @@
     const slots   = document.getElementById('pz-slots');
 
     // All slots must be filled
+    const N = PUZZLE_LAYERS.length;
     if (S.puzzleSlots.some(s => s === null)) {
       fb.classList.remove('hidden');
-      fb.textContent = `Fill all 5 slots before checking. (${S.puzzleSlots.filter(Boolean).length}/5 placed)`;
+      fb.textContent = `Fill all ${N} slots before checking. (${S.puzzleSlots.filter(Boolean).length}/${N} placed)`;
       success.classList.add('hidden');
       return;
     }
@@ -752,6 +818,14 @@
     document.getElementById('map-zoom-out').addEventListener('click', () => {
       setMapLevel(Math.max(S.mapLevel - 1, 0));
     });
+
+    // Click-to-zoom on pins (delegated, works across re-renders)
+    MAP_SVG_WRAP.addEventListener('click', e => {
+      const pin = e.target.closest('.map-pin-zoom');
+      if (!pin) return;
+      const lvl = parseInt(pin.dataset.zoomTo, 10);
+      if (!isNaN(lvl)) setMapLevel(lvl);
+    });
   }
 
   function setMapLevel(lvl) {
@@ -809,7 +883,8 @@
       <circle cx="306" cy="162" r="3" fill="#8ab4d4" opacity="0.5"/>
       <text x="312" y="165" fill="#8ab4d4" font-family="DM Sans,sans-serif" font-size="7" opacity="0.5">Shanghai</text>
       <!-- Suzhou pin -->
-      <g transform="translate(292,150)">
+      <g transform="translate(292,150)" class="map-pin-zoom" data-zoom-to="1" style="cursor:pointer">
+        <circle r="14" fill="transparent"/>
         <circle r="10" fill="rgba(200,100,80,0.2)"/>
         <circle r="10" fill="none" stroke="#e05050" stroke-width="1" opacity="0.5">
           <animate attributeName="r" from="8" to="16" dur="2s" repeatCount="indefinite"/>
@@ -872,7 +947,8 @@
       <circle cx="232" cy="178" r="5" fill="#2a5040" stroke="#5a9a7a" stroke-width="1"/>
       <text x="240" y="181" fill="#5a9a7a" font-family="DM Sans,sans-serif" font-size="7.5" opacity="0.8">Hanshan Temple · 寒山寺</text>
       <!-- Chang Gate pin -->
-      <g transform="translate(234,152)">
+      <g transform="translate(234,152)" class="map-pin-zoom" data-zoom-to="2" style="cursor:pointer">
+        <circle r="18" fill="transparent"/>
         <circle r="12" fill="rgba(200,100,80,0.15)"/>
         <circle r="12" fill="none" stroke="#e05050" stroke-width="1" opacity="0.4">
           <animate attributeName="r" from="10" to="20" dur="2s" repeatCount="indefinite"/>
