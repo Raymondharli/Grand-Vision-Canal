@@ -1,5 +1,3 @@
-/* Chang Gate · 阊门 · Minimalist Dark Theme */
-
 :root {
   --bg:          #111110;
   --surface:     #1a1a18;
@@ -33,7 +31,7 @@ body { font-family: var(--font-body); color: var(--text); overscroll-behavior: n
 .hidden { display: none !important; }
 button { background: none; border: none; cursor: pointer; font-family: var(--font-body); color: inherit; }
 
-/* ── Loading ───────────────────────────────────────── */
+/* ── Loading ── */
 #loading-screen {
   position: fixed; inset: 0; background: var(--bg);
   display: flex; align-items: center; justify-content: center;
@@ -51,7 +49,6 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 @keyframes loadFill { to { width: 100%; } }
 @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
-/* ── App Shell ─────────────────────────────────────── */
 #app {
   height: 100dvh; display: flex; flex-direction: column;
   background: var(--bg); max-width: 440px; margin: 0 auto;
@@ -59,7 +56,6 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 }
 @media (min-width: 441px) { #app { box-shadow: 0 0 80px rgba(0,0,0,0.8); } }
 
-/* ── Header ────────────────────────────────────────── */
 .app-header {
   display: flex; justify-content: space-between; align-items: center;
   padding: 15px 20px 11px; border-bottom: 1px solid var(--border-soft);
@@ -71,7 +67,6 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 .header-en  { font-family: var(--font-display); font-size: 14px; font-style: italic; color: var(--text-mid); }
 .header-loc { font-size: 10px; font-weight: 300; color: var(--text-soft); letter-spacing: 0.2em; text-transform: uppercase; }
 
-/* ── Tab system ────────────────────────────────────── */
 .tab-content { flex: 1; overflow: hidden; position: relative; }
 .tab-pane { position: absolute; inset: 0; display: none; flex-direction: column; overflow: hidden; }
 .tab-pane.active { display: flex; }
@@ -94,9 +89,7 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 .panel-title    { font-family: var(--font-display); font-size: 18px; color: var(--text); display: block; }
 .panel-subtitle { font-size: 12px; font-weight: 300; color: var(--text-soft); margin-top: 3px; display: block; }
 
-/* ══════════════════════════════════════════════════
-   TIMELINE TAB
-══════════════════════════════════════════════════ */
+
 #tab-timeline { flex-direction: column; }
 
 .viewer { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
@@ -239,9 +232,7 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 .caption-text  { font-size: 12px; font-weight: 300; font-style: italic; color: var(--text-mid); line-height: 1.5; flex: 1; padding-right: 12px; }
 .photo-counter { font-size: 10px; font-weight: 300; color: var(--text-soft); letter-spacing: 0.08em; white-space: nowrap; }
 
-/* ══════════════════════════════════════════════════
-   PUZZLE TAB
-══════════════════════════════════════════════════ */
+
 #tab-puzzle { overflow-y: auto; }
 
 .puzzle-wrap {
@@ -252,7 +243,6 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 
 .pz-layout { display: flex; gap: 12px; align-items: flex-start; }
 
-/* Slots column */
 .pz-slots-col { flex: 1; display: flex; flex-direction: column; gap: 6px; }
 
 .pz-slot {
@@ -275,6 +265,7 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
   font-size: 9px; font-weight: 500; color: var(--text-soft);
   letter-spacing: 0.1em; flex-shrink: 0; width: 14px; text-align: center;
 }
+.pz-slot-glyph   { width: 62px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 .pz-slot-content { flex: 1; min-width: 0; }
 .pz-slot-name    { display: block; font-size: 12px; font-weight: 400; color: var(--text); line-height: 1.2; }
 .pz-slot-zh      { display: block; font-size: 11px; font-weight: 300; color: var(--text-soft); font-family: var(--font-zh); margin-top: 1px; }
@@ -289,7 +280,6 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 }
 .pz-remove-btn:hover { color: var(--text); }
 
-/* Tray column */
 .pz-tray-col { width: 120px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
 .pz-tray-label { font-size: 9px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-soft); margin-bottom: 2px; }
 .pz-tray { display: flex; flex-direction: column; gap: 6px; }
@@ -314,7 +304,6 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 
 .pz-tray-done { font-size: 11px; font-weight: 300; color: var(--text-soft); font-style: italic; text-align: center; padding: 8px 0; }
 
-/* Actions row */
 .pz-actions { display: flex; gap: 10px; }
 .pz-btn {
   flex: 1; height: 40px; border-radius: var(--r);
@@ -340,9 +329,6 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 .pz-success-title { font-family: var(--font-display); font-size: 19px; color: var(--text); }
 .pz-success-sub   { font-size: 12px; font-weight: 300; color: var(--text-mid); text-align: center; max-width: 260px; line-height: 1.5; }
 
-/* ══════════════════════════════════════════════════
-   TREASURE TAB
-══════════════════════════════════════════════════ */
 #tab-treasure { position: relative; overflow: hidden; }
 
 .treasure-wrap {
@@ -405,9 +391,7 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
   width: 100%; height: 100%;
 }
 
-/* ══════════════════════════════════════════════════
-   MAP TAB — Apple Maps style
-══════════════════════════════════════════════════ */
+
 #tab-map { overflow-y: auto; }
 
 .map-wrap {
@@ -416,7 +400,6 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
   overflow-y: auto;
 }
 
-/* Main map container — mimics Apple Maps card */
 .map-apple-container {
   width: 100%;
   aspect-ratio: 16/10;
@@ -428,14 +411,12 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
   box-shadow: 0 4px 24px rgba(0,0,0,0.5);
 }
 
-/* SVG content with smooth zoom transitions */
 .map-svg-wrap {
   position: absolute; inset: 0;
   transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
 }
 .map-svg-wrap svg { width: 100%; height: 100%; display: block; }
 
-/* Level pill — top centre like Apple Maps search bar */
 .map-level-btns {
   position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
   display: flex; border-radius: 20px; overflow: hidden;
@@ -453,7 +434,7 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 .map-level-btn.active { color: #fff; background: rgba(255,255,255,0.10); }
 .map-level-btn:hover:not(.active) { color: rgba(255,255,255,0.7); }
 
-/* Zoom controls — bottom right like Apple Maps */
+
 .map-zoom-controls {
   position: absolute; bottom: 14px; right: 14px;
   display: flex; flex-direction: column;
@@ -469,7 +450,7 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 .map-zoom-ctrl:hover { background: rgba(255,255,255,0.10); color: #fff; }
 .map-zoom-divider { height: 1px; background: rgba(255,255,255,0.08); }
 
-/* Compass — top right */
+
 .map-compass {
   position: absolute; top: 14px; right: 14px;
   width: 30px; height: 30px; border-radius: 50%;
@@ -479,7 +460,7 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
   z-index: 20; color: rgba(255,255,255,0.6);
 }
 
-/* Info cards grid */
+
 .map-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .map-card  { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; }
 .map-card-label { font-size: 9px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-dim); margin-bottom: 3px; }
@@ -487,9 +468,7 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 
 .map-note { font-size: 12px; font-weight: 300; color: var(--text-soft); line-height: 1.6; font-style: italic; }
 
-/* ══════════════════════════════════════════════════
-   CHAT
-══════════════════════════════════════════════════ */
+
 .chat-fab {
   position: absolute; bottom: calc(var(--tab-bar-h) + 12px); right: 14px;
   height: 34px; padding: 0 13px 0 11px; border-radius: 17px;
@@ -565,7 +544,6 @@ button { background: none; border: none; cursor: pointer; font-family: var(--fon
 .chat-backdrop.hidden { display: none; }
 @keyframes bdfadeIn { from { opacity:0; } to { opacity:1; } }
 
-/* ── Responsive ──────────────────────────────────── */
 @media (max-height: 680px) {
   .era-strip    { padding: 7px 20px 4px; }
   .era-period   { font-size: 15px; }
