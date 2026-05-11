@@ -11,7 +11,7 @@
 </head>
 <body>
 
-  <!-- Loading -->
+
   <div id="loading-screen">
     <div class="loading-inner">
       <div class="loading-icon">
@@ -29,7 +29,6 @@
     </div>
   </div>
 
-  <!-- App -->
   <div id="app" class="hidden">
 
     <header class="app-header">
@@ -43,7 +42,6 @@
 
     <div class="tab-content">
 
-      <!-- ══ TIMELINE ══ -->
       <div class="tab-pane active" id="tab-timeline">
         <main class="viewer">
           <div class="era-strip">
@@ -97,7 +95,10 @@
               <div class="timeline-rail"></div>
               <div class="timeline-progress" id="timeline-progress"></div>
               <div class="era-dots" id="era-dots"></div>
-              <div class="timeline-handle" id="timeline-handle" role="slider" tabindex="0" aria-label="Timeline scrubber">
+              <div class="timeline-handle" id="timeline-handle"
+                   role="slider" tabindex="0"
+                   aria-label="Timeline scrubber"
+                   aria-valuemin="1" aria-valuemax="1" aria-valuenow="1">
                 <div class="handle-pip"></div>
               </div>
             </div>
@@ -110,7 +111,6 @@
         </footer>
       </div>
 
-      <!-- ══ PUZZLE ══ -->
       <div class="tab-pane" id="tab-puzzle">
         <div class="panel-header">
           <span class="panel-title">Gate Builder</span>
@@ -121,7 +121,6 @@
         </div>
       </div>
 
-      <!-- ══ TREASURE ══ -->
       <div class="tab-pane" id="tab-treasure">
         <div class="panel-header">
           <span class="panel-title">Treasure Hunt</span>
@@ -130,7 +129,7 @@
         <div class="treasure-wrap">
           <div class="treasure-clue-box">
             <p class="treasure-clue-label">Clue</p>
-            <p class="treasure-clue-text" id="treasure-clue">—</p>
+            <p class="treasure-clue-text" id="treasure-clue" aria-live="polite">—</p>
           </div>
           <div class="treasure-frame-wrap">
             <div class="treasure-frame" id="treasure-frame">
@@ -148,7 +147,7 @@
             <button class="t-nav-btn" id="t-prev">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             </button>
-            <span id="t-progress" class="t-progress">0 / 6 found</span>
+            <span id="t-progress" class="t-progress" aria-live="polite"></span>
             <button class="t-nav-btn" id="t-next">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             </button>
@@ -158,16 +157,13 @@
         <canvas id="fireworks-canvas" class="fireworks-canvas"></canvas>
       </div>
 
-      <!-- ══ MAP ══ -->
       <div class="tab-pane" id="tab-map">
         <div class="panel-header">
           <span class="panel-title">Location</span>
           <span class="panel-subtitle">Chang Gate · Suzhou, Jiangsu Province</span>
         </div>
         <div class="map-wrap">
-          <!-- Apple Maps-style container -->
           <div class="map-apple-container" id="map-apple-container">
-            <!-- SVG map injected by JS -->
             <div class="map-level-btns">
               <button class="map-level-btn active" data-level="0">China</button>
               <button class="map-level-btn" data-level="1">Suzhou</button>
@@ -198,9 +194,9 @@
         </div>
       </div>
 
-    </div><!-- end tab-content -->
+    </div>
 
-    <!-- Tab bar -->
+  
     <nav class="tab-bar">
       <button class="tab-btn active" data-tab="timeline">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -220,13 +216,11 @@
       </button>
     </nav>
 
-    <!-- Chat FAB -->
     <button class="chat-fab" id="chat-fab">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span>Ask</span>
     </button>
 
-    <!-- Chat panel -->
     <div class="chat-panel hidden" id="chat-panel">
       <div class="chat-panel-header">
         <div class="chat-panel-title"><div class="chat-title-dot"></div><span>History Assistant</span></div>
@@ -255,7 +249,7 @@
     </div>
     <div class="chat-backdrop hidden" id="chat-backdrop"></div>
 
-  </div><!-- #app -->
+  </div>
 
   <script src="data.js"></script>
   <script src="app.js"></script>
