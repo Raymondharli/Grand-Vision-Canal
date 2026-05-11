@@ -1,263 +1,195 @@
-(async function() {
-  const LOADER = document.getElementById('loading-screen');
-  const APP = document.getElementById('app');
-  const ERA_PERIOD = document.getElementById('era-period');
-  const ERA_YEAR = document.getElementById('era-year');
-  const MAIN_PHOTO = document.getElementById('main-photo');
-  const PHOTO_FRAME = document.getElementById('photo-frame');
-  const INFO_TRIGGER = document.getElementById('info-trigger');
-  const INFO_CARD = document.getElementById('info-card');
-  const INFO_CLOSE = document.getElementById('info-close');
-  const INFO_TITLE = document.getElementById('info-title');
-  const INFO_BODY = document.getElementById('info-body');
-  const INFO_SOURCE = document.getElementById('info-source');
-  const NAV_PREV = document.getElementById('nav-prev');
-  const NAV_NEXT = document.getElementById('nav-next');
-  const TIMELINE_TRACK = document.getElementById('timeline-track');
-  const TIMELINE_PROGRESS = document.getElementById('timeline-progress');
-  const TIMELINE_HANDLE = document.getElementById('timeline-handle');
-  const ERA_DOTS = document.getElementById('era-dots');
-  const DOT_NAV = document.getElementById('dot-nav');
-  const DOT_LABELS = document.getElementById('dot-labels'); // maybe not used
-  const CAPTION_TEXT = document.getElementById('caption-text');
+(function () {
+  'use strict';
+
+  /* ═══════════════════════════════════════════════════════════
+     DOM REFS
+  ═══════════════════════════════════════════════════════════ */
+  const LOADER        = document.getElementById('loading-screen');
+  const APP           = document.getElementById('app');
+
+  // Timeline
+  const ERA_PERIOD    = document.getElementById('era-period');
+  const ERA_YEAR      = document.getElementById('era-year');
+  const MAIN_PHOTO    = document.getElementById('main-photo');
+  const PHOTO_FRAME   = document.getElementById('photo-frame');
+  const ERA_PH        = document.getElementById('era-placeholder');
+  const PH_ZH         = document.getElementById('placeholder-zh');
+  const PH_LABEL      = document.getElementById('placeholder-label');
+  const INFO_BTN      = document.getElementById('info-trigger');
+  const INFO_CARD     = document.getElementById('info-card');
+  const INFO_CLOSE    = document.getElementById('info-close');
+  const INFO_TITLE    = document.getElementById('info-title');
+  const INFO_BODY_EL  = document.getElementById('info-body');
+  const INFO_SOURCE   = document.getElementById('info-source');
+  const NAV_PREV      = document.getElementById('nav-prev');
+  const NAV_NEXT      = document.getElementById('nav-next');
+  const TL_TRACK      = document.getElementById('timeline-track');
+  const TL_PROGRESS   = document.getElementById('timeline-progress');
+  const TL_HANDLE     = document.getElementById('timeline-handle');
+  const ERA_DOTS_EL   = document.getElementById('era-dots');
+  const DOT_NAV       = document.getElementById('dot-nav');
+  const CAPTION_TEXT  = document.getElementById('caption-text');
   const PHOTO_COUNTER = document.getElementById('photo-counter');
-  const TL_START = document.getElementById('tl-start');
-  const TL_END = document.getElementById('tl-end');
-  const SWIPE_HINT = document.getElementById('swipe-hint');
+  const TL_START      = document.getElementById('tl-start');
+  const TL_END        = document.getElementById('tl-end');
+  const SWIPE_HINT    = document.getElementById('swipe-hint');
 
-  let data;
-  let eras = [];
-  let currentIndex = 0;
-  let isDragging = false;
-  let hintShown = false;
+  // Puzzle
+  const PUZZLE_WRAP   = document.getElementById('puzzle-wrap');
 
-  // Embedded fallback data so the app works when opened locally (file://)
-  const FALLBACK_DATA = {
-    "landmark": {
-      "name": "Chang Gate",
-      "chineseName": "阊门",
-      "city": "Suzhou",
-      "country": "China",
-      "coordinates": { "lat": 31.3133, "lng": 120.5736 }
-    },
-    "eras": [
-      {
-        "id": "han-dynasty",
-        "period": "Western Han Dynasty",
-        "year": "c. 202 BCE",
-        "yearNumeric": -202,
-        "photo": "images/era_han.jpg",
-        "photoAlt": "Artistic reconstruction of Chang Gate during Western Han Dynasty",
-        "caption": "First constructed as a grand western gate of the ancient city of Gusu.",
-        "sepia": 0.9,
-        "info": {
-          "title": "Origins — The Gate of Wu",
-          "body": "Chang Gate traces its origins to the ancient city of Gusu, founded during the Spring and Autumn period. Under the Han Dynasty it served as one of the eight great gates of Suzhou's city wall, guarding the vital waterway route westward toward the Grand Canal. Merchants, soldiers and scholars passed beneath its arch for generations.",
-          "source": "Suzhou Municipal Museum, Historical Records"
-        }
-      },
-      {
-        "id": "tang-dynasty",
-        "period": "Tang Dynasty",
-        "year": "c. 618–907 CE",
-        "yearNumeric": 700,
-        "photo": "images/era_tang.jpg",
-        "photoAlt": "Chang Gate area during the Tang Dynasty",
-        "caption": "The gate district flourished as a thriving commercial hub along the Grand Canal.",
-        "sepia": 0.8,
-        "info": {
-          "title": "Tang Prosperity — A City of Silk",
-          "body": "During the Tang dynasty Suzhou was renowned across the empire for its silk weaving and canal commerce. Chang Gate stood at the city's busiest waterfront quarter. Poet Zhang Ji's famous verse 'Maple Bridge Night Mooring' was written just outside these walls, immortalising the sound of Hanshan Temple's bell drifting across the water at midnight.",
-          "source": "Tang Poetry Archive; Zhang Ji, 'Fēng Qiáo Yè Bó' (楓橋夜泊)"
-        }
-      },
-      {
-        "id": "song-dynasty",
-        "period": "Song Dynasty",
-        "year": "c. 960–1279 CE",
-        "yearNumeric": 1100,
-        "photo": "images/era_song.jpg",
-        "photoAlt": "Chang Gate during the prosperous Song Dynasty",
-        "caption": "Expanded city walls and a grand double-arched gate tower were constructed.",
-        "sepia": 0.75,
-        "info": {
-          "title": "Song Expansion — The Double Tower",
-          "body": "The Song era brought major reconstruction to Chang Gate, adding the distinctive double-tower gatehouse that would define its silhouette for centuries. The canal district outside the gate became one of the wealthiest commercial quarters in all of southern China, with warehouses for silk, ceramics and grain lining the waterfront.",
-          "source": "Pingjiang Map (平江圖), 1229 CE — oldest surviving city map of Suzhou"
-        }
-      },
-      {
-        "id": "ming-dynasty",
-        "period": "Ming Dynasty",
-        "year": "c. 1368–1644 CE",
-        "yearNumeric": 1500,
-        "photo": "images/era_ming.jpg",
-        "photoAlt": "Chang Gate's grand Ming Dynasty fortifications",
-        "caption": "Massive fortification upgrades transformed Chang Gate into a formidable military bastion.",
-        "sepia": 0.65,
-        "info": {
-          "title": "Ming Fortification — Walls of Stone",
-          "body": "The Ming dynasty oversaw ambitious expansions of Suzhou's city walls, reinforcing Chang Gate with thick granite masonry and a deep defensive moat. The gate complex grew to include watchtowers and garrison barracks. Despite its military might, the surrounding neighbourhood remained a centre for commerce and the arts — garden culture flourished just inside the walls.",
-          "source": "Ming Shilu (明實錄), Suzhou Gazetteer"
-        }
-      },
-      {
-        "id": "qing-dynasty-1800s",
-        "period": "Qing Dynasty",
-        "year": "c. 1860s–1890s",
-        "yearNumeric": 1875,
-        "photo": "images/era_qing.jpg",
-        "photoAlt": "Historical photograph of Chang Gate circa 1880",
-        "caption": "Early photographs capture the gate in its Qing-era form — battered but still standing.",
-        "sepia": 0.5,
-        "info": {
-          "title": "Qing Decline — Cameras Arrive",
-          "body": "The Taiping Rebellion (1850–64) left Suzhou in ruins. Chang Gate suffered serious damage during the conflict but was partially restored under the late Qing. Western missionaries and photographers arrived in the 1870s–90s, leaving behind some of the earliest photographs of the gate and its canal environs — remarkable documents of a city caught between its ancient past and an uncertain modern future.",
-          "source": "John Thomson photographic archive, c. 1870; Suzhou City Archives"
-        }
-      },
-      {
-        "id": "republic-era",
-        "period": "Republic of China",
-        "year": "1912–1949",
-        "yearNumeric": 1930,
-        "photo": "images/era_republic.jpg",
-        "photoAlt": "Chang Gate area in the Republican era",
-        "caption": "Modernisation transformed the canal banks while the ancient gate stood witness.",
-        "sepia": 0.35,
-        "info": {
-          "title": "Republican Suzhou — Old Meets New",
-          "body": "The early twentieth century brought roads, trams and electricity to Suzhou. Much of the original city wall was demolished during this period to make way for modern roads, but Chang Gate and its adjacent wall sections were preserved. The canal district outside continued its centuries-old commercial life alongside new factories and Western-style shophouses.",
-          "source": "Suzhou Municipal Archives, 1920s–40s survey photographs"
-        }
-      },
-      {
-        "id": "modern",
-        "period": "Contemporary",
-        "year": "Present day",
-        "yearNumeric": 2024,
-        "photo": "images/era_modern.jpg",
-        "photoAlt": "Chang Gate today, restored as a heritage landmark",
-        "caption": "Restored and designated a national heritage site, Chang Gate welcomes visitors from around the world.",
-        "sepia": 0.0,
-        "info": {
-          "title": "Heritage Today — 阊门 Restored",
-          "body": "Chang Gate was declared a national heritage site and underwent comprehensive restoration in the 1990s and 2000s. Today the gate tower and a section of the original city wall stand as the centrepiece of a public park. The surrounding Shantang Street canal district — running from the gate westward to Tiger Hill — has been restored as a living heritage quarter of traditional shops, teahouses and gardens.",
-          "source": "Suzhou Heritage Conservation Bureau, 2010"
-        }
-      }
-    ]
+  // Treasure
+  const T_CLUE        = document.getElementById('treasure-clue');
+  const T_PHOTO       = document.getElementById('treasure-photo');
+  const T_PLACEHOLDER = document.getElementById('treasure-placeholder');
+  const T_PH_ZH       = document.getElementById('treasure-ph-zh');
+  const T_HIT_ZONE    = document.getElementById('treasure-hit-zone');
+  const T_BADGE       = document.getElementById('treasure-badge');
+  const T_PROGRESS    = document.getElementById('t-progress');
+  const T_ERA_LABEL   = document.getElementById('t-era-label');
+  const T_PREV        = document.getElementById('t-prev');
+  const T_NEXT        = document.getElementById('t-next');
+  const FW_CANVAS     = document.getElementById('fireworks-canvas');
+
+  // Map
+  const MAP_SVG_WRAP  = document.getElementById('map-svg-wrap');
+
+  // Chat
+  const CHAT_FAB      = document.getElementById('chat-fab');
+  const CHAT_PANEL    = document.getElementById('chat-panel');
+  const CHAT_CLOSE    = document.getElementById('chat-close');
+  const CHAT_BACKDROP = document.getElementById('chat-backdrop');
+  const CHAT_MSGS     = document.getElementById('chat-messages');
+  const CHAT_INPUT    = document.getElementById('chat-input');
+  const CHAT_SEND     = document.getElementById('chat-send');
+  const CHAT_CHIPS    = document.getElementById('chat-chips');
+
+  /* ═══════════════════════════════════════════════════════════
+     STATE
+  ═══════════════════════════════════════════════════════════ */
+  const S = {
+    // Timeline
+    eraIndex:    0,
+    isDragging:  false,
+    hintShown:   false,
+    // Puzzle: array of layer IDs in current slot order (null = empty)
+    puzzleSlots: [null, null, null, null, null],
+    puzzleInited: false,
+    // Treasure
+    tIndex:      0,
+    tFound:      [],
+    tInited:     false,
+    // Map
+    mapLevel:    0,
+    mapInited:   false,
+    // Chat
+    chatOpen:    false,
+    chatHistory: []
   };
 
-  // Try fetch first (for server environments), fall back to embedded data (for file://)
-  try {
-    const res = await fetch('photos.json');
-    if (!res.ok) throw new Error('Failed to load photos.json');
-    data = await res.json();
-    eras = data.eras;
-  } catch (e) {
-    console.warn('Fetch failed (likely CORS on file://). Using embedded fallback data.', e);
-    data = FALLBACK_DATA;
-    eras = data.eras;
-  }
+  const eras = ERAS; // from data.js
 
+  /* ═══════════════════════════════════════════════════════════
+     BOOT
+  ═══════════════════════════════════════════════════════════ */
   // Preload images
-  const imagePromises = eras.map(era => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = resolve;
-      img.onerror = resolve; // don't block on error
-      img.src = era.photo;
-    });
-  });
+  eras.forEach(e => { const i = new Image(); i.src = e.photo; });
 
-  await Promise.all(imagePromises);
+  buildTimeline();
+  buildDotNav();
+  renderEra(0, 'none');
 
-  // Initialize UI
-  initTimeline();
-  initDotNav();
-  updateUI(0, 'none');
-
-  // Reveal app
   LOADER.classList.add('fade-out');
   setTimeout(() => {
     LOADER.classList.add('hidden');
     APP.classList.remove('hidden');
-  }, 600);
+  }, 650);
 
-  // Event listeners
+  /* ═══════════════════════════════════════════════════════════
+     TABS
+  ═══════════════════════════════════════════════════════════ */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+
+      // Show/hide chat FAB only on timeline
+      CHAT_FAB.style.display = (tab === 'timeline') ? '' : 'none';
+
+      // Lazy init
+      if (tab === 'puzzle'   && !S.puzzleInited) { S.puzzleInited = true; initPuzzle(); }
+      if (tab === 'treasure' && !S.tInited)      { S.tInited = true;      initTreasure(); }
+      if (tab === 'map'      && !S.mapInited)    { S.mapInited = true;    initMap(); }
+    });
+  });
+
+  /* ═══════════════════════════════════════════════════════════
+     TIMELINE — navigation
+  ═══════════════════════════════════════════════════════════ */
   NAV_PREV.addEventListener('click', () => {
-    if (currentIndex > 0) updateUI(currentIndex - 1, 'right');
+    if (S.eraIndex > 0) renderEra(S.eraIndex - 1, 'right');
   });
   NAV_NEXT.addEventListener('click', () => {
-    if (currentIndex < eras.length - 1) updateUI(currentIndex + 1, 'left');
+    if (S.eraIndex < eras.length - 1) renderEra(S.eraIndex + 1, 'left');
   });
 
-  INFO_TRIGGER.addEventListener('click', () => {
-    INFO_CARD.classList.remove('hidden');
-  });
-  INFO_CLOSE.addEventListener('click', () => {
-    INFO_CARD.classList.add('hidden');
-  });
-
-  // Keyboard nav
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft' && currentIndex > 0) updateUI(currentIndex - 1, 'right');
-    if (e.key === 'ArrowRight' && currentIndex < eras.length - 1) updateUI(currentIndex + 1, 'left');
-    if (e.key === 'Escape') INFO_CARD.classList.add('hidden');
+  document.addEventListener('keydown', e => {
+    if (S.chatOpen) return;
+    const active = document.querySelector('.tab-pane.active');
+    if (!active || active.id !== 'tab-timeline') return;
+    if (e.key === 'ArrowLeft'  && S.eraIndex > 0)              renderEra(S.eraIndex - 1, 'right');
+    if (e.key === 'ArrowRight' && S.eraIndex < eras.length - 1) renderEra(S.eraIndex + 1, 'left');
+    if (e.key === 'Escape') closeInfo();
   });
 
-  // Swipe detection
+  // Touch swipe
   let touchStartX = 0;
-  let touchEndX = 0;
-  PHOTO_FRAME.addEventListener('touchstart', (e) => {
+  PHOTO_FRAME.addEventListener('touchstart', e => {
     touchStartX = e.changedTouches[0].screenX;
   }, { passive: true });
-  PHOTO_FRAME.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
+  PHOTO_FRAME.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].screenX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0 && S.eraIndex < eras.length - 1) renderEra(S.eraIndex + 1, 'left');
+      if (diff < 0 && S.eraIndex > 0)               renderEra(S.eraIndex - 1, 'right');
+      hideHint();
+    }
   }, { passive: true });
-  // Also mouse drag for desktop swipe feel? Could add mousedown/mouseup.
+
+  // Mouse drag
   let mouseDownX = 0;
-  PHOTO_FRAME.addEventListener('mousedown', (e) => {
-    mouseDownX = e.screenX;
-  });
-  PHOTO_FRAME.addEventListener('mouseup', (e) => {
+  PHOTO_FRAME.addEventListener('mousedown', e => { mouseDownX = e.screenX; });
+  PHOTO_FRAME.addEventListener('mouseup', e => {
     const diff = mouseDownX - e.screenX;
     if (Math.abs(diff) > 40) {
-      if (diff > 0 && currentIndex < eras.length - 1) updateUI(currentIndex + 1, 'left');
-      if (diff < 0 && currentIndex > 0) updateUI(currentIndex - 1, 'right');
+      if (diff > 0 && S.eraIndex < eras.length - 1) renderEra(S.eraIndex + 1, 'left');
+      if (diff < 0 && S.eraIndex > 0)               renderEra(S.eraIndex - 1, 'right');
       hideHint();
     }
   });
 
-  function handleSwipe() {
-    const diff = touchStartX - touchEndX;
-    if (Math.abs(diff) > 40) {
-      if (diff > 0 && currentIndex < eras.length - 1) updateUI(currentIndex + 1, 'left');
-      if (diff < 0 && currentIndex > 0) updateUI(currentIndex - 1, 'right');
-      hideHint();
-    }
-  }
+  // Info card
+  INFO_BTN.addEventListener('click',   () => INFO_CARD.classList.remove('hidden'));
+  INFO_CLOSE.addEventListener('click', closeInfo);
+  function closeInfo() { INFO_CARD.classList.add('hidden'); }
 
-  // Timeline interactions
-  TIMELINE_TRACK.addEventListener('click', (e) => {
+  // Timeline scrubber click
+  TL_TRACK.addEventListener('click', e => {
     if (e.target.closest('.timeline-handle')) return;
-    const rect = TIMELINE_TRACK.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const pct = Math.max(0, Math.min(1, x / rect.width));
-    const targetIndex = getIndexFromPct(pct);
-    const dir = targetIndex > currentIndex ? 'left' : 'right';
-    updateUI(targetIndex, dir);
+    const pct = getPct(e.clientX);
+    const idx = idxFromPct(pct);
+    renderEra(idx, idx > S.eraIndex ? 'left' : 'right');
     hideHint();
   });
 
-  // Timeline drag
-  TIMELINE_HANDLE.addEventListener('mousedown', startDrag);
-  TIMELINE_HANDLE.addEventListener('touchstart', startDrag, { passive: false });
+  // Timeline handle drag
+  TL_HANDLE.addEventListener('mousedown', startDrag);
+  TL_HANDLE.addEventListener('touchstart', startDrag, { passive: false });
 
   function startDrag(e) {
-    isDragging = true;
+    S.isDragging = true;
     e.preventDefault();
     document.body.style.cursor = 'grabbing';
     document.addEventListener('mousemove', onDrag);
@@ -265,61 +197,102 @@
     document.addEventListener('touchmove', onDrag, { passive: false });
     document.addEventListener('touchend', endDrag);
   }
-
   function onDrag(e) {
-    if (!isDragging) return;
+    if (!S.isDragging) return;
     e.preventDefault();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const rect = TIMELINE_TRACK.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const pct = Math.max(0, Math.min(1, x / rect.width));
-    setHandleAndProgress(pct);
+    setHandlePos(getPct(e.touches ? e.touches[0].clientX : e.clientX));
   }
-
   function endDrag(e) {
-    if (!isDragging) return;
-    isDragging = false;
+    if (!S.isDragging) return;
+    S.isDragging = false;
     document.body.style.cursor = '';
     document.removeEventListener('mousemove', onDrag);
     document.removeEventListener('mouseup', endDrag);
     document.removeEventListener('touchmove', onDrag);
     document.removeEventListener('touchend', endDrag);
-    const rect = TIMELINE_TRACK.getBoundingClientRect();
-    const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-    const x = clientX - rect.left;
-    const pct = Math.max(0, Math.min(1, x / rect.width));
-    const targetIndex = getIndexFromPct(pct);
-    const dir = targetIndex > currentIndex ? 'left' : 'right';
-    updateUI(targetIndex, dir);
+    const cx  = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+    const idx = idxFromPct(getPct(cx));
+    renderEra(idx, idx > S.eraIndex ? 'left' : 'right');
     hideHint();
   }
 
-  // Helper functions
-  function initTimeline() {
-    const years = eras.map(e => e.yearNumeric);
-    const min = Math.min(...years);
-    const max = Math.max(...years);
-    TL_START.textContent = eras[0].year;
-    TL_END.textContent = eras[eras.length - 1].year;
+  /* ── Timeline core render ───────────────────────────────── */
+  function renderEra(index, direction) {
+    if (index === S.eraIndex && direction !== 'none') return;
+    S.eraIndex = index;
+    const era = eras[index];
 
-    // Create era dots
-    ERA_DOTS.innerHTML = '';
+    ERA_PERIOD.textContent = era.period;
+    ERA_YEAR.textContent   = era.year;
+    ['flash'].forEach(cls => {
+      ERA_PERIOD.classList.remove(cls); void ERA_PERIOD.offsetWidth; ERA_PERIOD.classList.add(cls);
+      ERA_YEAR.classList.remove(cls);   void ERA_YEAR.offsetWidth;   ERA_YEAR.classList.add(cls);
+    });
+
+    PH_ZH.textContent    = era.placeholderZh    || '';
+    PH_LABEL.textContent = era.placeholderLabel || '';
+    ERA_PH.style.display = 'flex';
+
+    if (direction !== 'none') {
+      PHOTO_FRAME.classList.remove('slide-left', 'slide-right');
+      void PHOTO_FRAME.offsetWidth;
+      PHOTO_FRAME.classList.add('slide-' + direction);
+    }
+
+    MAIN_PHOTO.classList.add('transitioning');
+    const img = new Image();
+    img.onload = () => {
+      MAIN_PHOTO.src          = era.photo;
+      MAIN_PHOTO.alt          = era.photoAlt;
+      MAIN_PHOTO.style.filter = `sepia(${era.sepia}) contrast(1.08) brightness(0.88)`;
+      MAIN_PHOTO.classList.remove('transitioning', 'no-image');
+      ERA_PH.style.display    = 'none';
+    };
+    img.onerror = () => {
+      MAIN_PHOTO.classList.add('no-image');
+      MAIN_PHOTO.classList.remove('transitioning');
+    };
+    img.src = era.photo;
+
+    CAPTION_TEXT.textContent  = era.caption;
+    PHOTO_COUNTER.textContent = `${index + 1} / ${eras.length}`;
+    INFO_TITLE.textContent    = era.info.title;
+    INFO_BODY_EL.textContent  = era.info.body;
+    INFO_SOURCE.textContent   = era.info.source;
+    closeInfo();
+
+    setHandlePos(yearPct(era.yearNumeric));
+
+    ERA_DOTS_EL.querySelectorAll('.era-dot-mark').forEach((d, i) =>
+      d.classList.toggle('active', i === index)
+    );
+    DOT_NAV.querySelectorAll('.dot-btn').forEach((b, i) => {
+      b.classList.toggle('active', i === index);
+      b.setAttribute('aria-selected', String(i === index));
+    });
+    NAV_PREV.disabled = index === 0;
+    NAV_NEXT.disabled = index === eras.length - 1;
+  }
+
+  /* ── Timeline helpers ───────────────────────────────────── */
+  function buildTimeline() {
+    TL_START.textContent = eras[0].year;
+    TL_END.textContent   = eras[eras.length - 1].year;
+    ERA_DOTS_EL.innerHTML = '';
     eras.forEach((era, i) => {
       const dot = document.createElement('div');
       dot.className = 'era-dot-mark';
-      dot.style.left = `${percentForYear(era.yearNumeric)}%`;
-      dot.dataset.index = i;
-      dot.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const dir = i > currentIndex ? 'left' : 'right';
-        updateUI(i, dir);
+      dot.style.left = `${yearPct(era.yearNumeric) * 100}%`;
+      dot.addEventListener('click', ev => {
+        ev.stopPropagation();
+        renderEra(i, i > S.eraIndex ? 'left' : 'right');
         hideHint();
       });
-      ERA_DOTS.appendChild(dot);
+      ERA_DOTS_EL.appendChild(dot);
     });
   }
 
-  function initDotNav() {
+  function buildDotNav() {
     DOT_NAV.innerHTML = '';
     eras.forEach((_, i) => {
       const btn = document.createElement('button');
@@ -327,111 +300,807 @@
       btn.setAttribute('role', 'tab');
       btn.setAttribute('aria-label', `Era ${i + 1}`);
       btn.addEventListener('click', () => {
-        const dir = i > currentIndex ? 'left' : 'right';
-        updateUI(i, dir);
+        renderEra(i, i > S.eraIndex ? 'left' : 'right');
         hideHint();
       });
       DOT_NAV.appendChild(btn);
     });
   }
 
-  function percentForYear(year) {
-    const years = eras.map(e => e.yearNumeric);
-    const min = Math.min(...years);
-    const max = Math.max(...years);
-    if (max === min) return 0;
-    return ((year - min) / (max - min)) * 100;
+  function yearPct(year) {
+    const nums = eras.map(e => e.yearNumeric);
+    const min  = Math.min(...nums);
+    const max  = Math.max(...nums);
+    return max === min ? 0 : (year - min) / (max - min);
   }
-
-  function getIndexFromPct(pct) {
-    // Find closest era by year position
-    const years = eras.map(e => e.yearNumeric);
-    const min = Math.min(...years);
-    const max = Math.max(...years);
-    const targetYear = min + pct * (max - min);
-    let closest = 0;
-    let minDiff = Infinity;
+  function getPct(clientX) {
+    const r = TL_TRACK.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+  }
+  function idxFromPct(pct) {
+    const nums   = eras.map(e => e.yearNumeric);
+    const min    = Math.min(...nums);
+    const max    = Math.max(...nums);
+    const target = min + pct * (max - min);
+    let closest = 0, minDiff = Infinity;
     eras.forEach((era, i) => {
-      const diff = Math.abs(era.yearNumeric - targetYear);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closest = i;
-      }
+      const d = Math.abs(era.yearNumeric - target);
+      if (d < minDiff) { minDiff = d; closest = i; }
     });
     return closest;
   }
-
-  function setHandleAndProgress(pct) {
-    TIMELINE_HANDLE.style.left = `${pct * 100}%`;
-    TIMELINE_PROGRESS.style.width = `${pct * 100}%`;
+  function setHandlePos(pct) {
+    TL_HANDLE.style.left    = `${pct * 100}%`;
+    TL_PROGRESS.style.width = `${pct * 100}%`;
+  }
+  function hideHint() {
+    if (S.hintShown) return;
+    S.hintShown = true;
+    SWIPE_HINT.classList.add('gone');
   }
 
-  function updateUI(index, direction) {
-    if (index === currentIndex && direction !== 'none') return;
-    const prevIndex = currentIndex;
-    currentIndex = index;
+  /* ═══════════════════════════════════════════════════════════
+     PUZZLE — drag-and-drop layer ordering
+     Correct order top→bottom: index 0..4 of PUZZLE_LAYERS
+  ═══════════════════════════════════════════════════════════ */
+  function initPuzzle() {
+    S.puzzleSlots = [null, null, null, null, null];
+    renderPuzzleUI();
+  }
 
-    const era = eras[index];
+  function renderPuzzleUI() {
+    PUZZLE_WRAP.innerHTML = `
+      <div class="pz-layout">
+        <div class="pz-slots-col" id="pz-slots"></div>
+        <div class="pz-tray-col">
+          <p class="pz-tray-label">Pieces</p>
+          <div class="pz-tray" id="pz-tray"></div>
+        </div>
+      </div>
+      <div class="pz-actions">
+        <button class="pz-btn pz-check" id="pz-check">Check Order</button>
+        <button class="pz-btn pz-shuffle" id="pz-shuffle">Shuffle</button>
+      </div>
+      <div class="pz-feedback hidden" id="pz-feedback"></div>
+      <div class="pz-success hidden" id="pz-success">
+        <div class="pz-success-icon">✦</div>
+        <p class="pz-success-title">Gate Restored</p>
+        <p class="pz-success-sub">You've correctly ordered all five layers of Chang Gate from top to bottom.</p>
+      </div>
+    `;
 
-    // Update text with flash animation
-    ERA_PERIOD.textContent = era.period;
-    ERA_YEAR.textContent = era.year;
-    ERA_PERIOD.classList.remove('flash');
-    ERA_YEAR.classList.remove('flash');
-    void ERA_PERIOD.offsetWidth; // trigger reflow
-    ERA_PERIOD.classList.add('flash');
-    ERA_YEAR.classList.add('flash');
+    buildPzSlots();
+    buildPzTray();
 
-    // Update photo
-    MAIN_PHOTO.classList.add('transitioning');
-    if (direction && direction !== 'none') {
-      PHOTO_FRAME.classList.remove('slide-left', 'slide-right');
-      void PHOTO_FRAME.offsetWidth;
-      PHOTO_FRAME.classList.add(`slide-${direction}`);
+    document.getElementById('pz-check').addEventListener('click', checkPuzzle);
+    document.getElementById('pz-shuffle').addEventListener('click', () => {
+      S.puzzleSlots = [null, null, null, null, null];
+      S._trayOrder  = PUZZLE_LAYERS.map(l => l.id).sort(() => Math.random() - 0.5);
+      S._selectedPiece = null;
+      document.getElementById('pz-success').classList.add('hidden');
+      document.getElementById('pz-feedback').classList.add('hidden');
+      buildPzSlots();
+      buildPzTray();
+    });
+  }
+
+  function buildPzSlots() {
+    const slotsEl = document.getElementById('pz-slots');
+    if (!slotsEl) return;
+    slotsEl.innerHTML = '';
+
+    S.puzzleSlots.forEach((layerId, slotIdx) => {
+      const slot = document.createElement('div');
+      slot.className    = 'pz-slot';
+      slot.dataset.slot = slotIdx;
+
+      const numLabel = document.createElement('span');
+      numLabel.className   = 'pz-slot-num';
+      numLabel.textContent = slotIdx + 1;
+      slot.appendChild(numLabel);
+
+      if (layerId !== null) {
+        const layer = PUZZLE_LAYERS.find(l => l.id === layerId);
+        const content = document.createElement('div');
+        content.className = 'pz-slot-content';
+        content.innerHTML = `<span class="pz-slot-name">${layer.name}</span><span class="pz-slot-zh">${layer.nameZh}</span>`;
+        slot.appendChild(content);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className   = 'pz-remove-btn';
+        removeBtn.textContent = '×';
+        removeBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          S.puzzleSlots[slotIdx] = null;
+          clearSlotFeedback();
+          buildPzSlots();
+          buildPzTray();
+        });
+        slot.appendChild(removeBtn);
+      } else {
+        const empty = document.createElement('span');
+        empty.className   = 'pz-slot-empty';
+        empty.textContent = 'Drop here';
+        slot.appendChild(empty);
+
+        // Drag-over / drop
+        slot.addEventListener('dragover', e => {
+          e.preventDefault();
+          slot.classList.add('pz-drag-over');
+        });
+        slot.addEventListener('dragleave', () => slot.classList.remove('pz-drag-over'));
+        slot.addEventListener('drop', e => {
+          e.preventDefault();
+          slot.classList.remove('pz-drag-over');
+          const layerId = e.dataTransfer.getData('layerId');
+          const fromSlot = e.dataTransfer.getData('fromSlot');
+          if (!layerId) return;
+          // If came from another slot, clear it
+          if (fromSlot !== '') {
+            S.puzzleSlots[parseInt(fromSlot)] = null;
+          }
+          S.puzzleSlots[slotIdx] = layerId;
+          clearSlotFeedback();
+          buildPzSlots();
+          buildPzTray();
+        });
+
+        // Touch tap-to-place (mobile)
+        slot.addEventListener('click', () => {
+          if (S._selectedPiece) {
+            // Check piece not already in a slot
+            const alreadyAt = S.puzzleSlots.indexOf(S._selectedPiece);
+            if (alreadyAt !== -1) S.puzzleSlots[alreadyAt] = null;
+            S.puzzleSlots[slotIdx] = S._selectedPiece;
+            S._selectedPiece = null;
+            clearSlotFeedback();
+            buildPzSlots();
+            buildPzTray();
+          }
+        });
+      }
+
+      // Allow piece in a slot to be dragged out
+      if (layerId !== null) {
+        slot.setAttribute('draggable', 'true');
+        slot.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('layerId', layerId);
+          e.dataTransfer.setData('fromSlot', String(slotIdx));
+        });
+      }
+
+      slotsEl.appendChild(slot);
+    });
+  }
+
+  function buildPzTray() {
+    const tray = document.getElementById('pz-tray');
+    if (!tray) return;
+    tray.innerHTML = '';
+
+    // Shuffle tray order on init only if all empty
+    if (!S._trayOrder) {
+      S._trayOrder = PUZZLE_LAYERS.map(l => l.id).sort(() => Math.random() - 0.5);
     }
 
-    setTimeout(() => {
-      MAIN_PHOTO.src = era.photo;
-      MAIN_PHOTO.alt = era.photoAlt;
-      MAIN_PHOTO.style.filter = `sepia(${era.sepia}) contrast(1.05) brightness(0.92)`;
-      MAIN_PHOTO.classList.remove('transitioning');
-    }, direction === 'none' ? 0 : 200);
+    // Pieces not yet placed
+    const placed = new Set(S.puzzleSlots.filter(Boolean));
 
-    // Update caption and counter
-    CAPTION_TEXT.textContent = era.caption;
-    PHOTO_COUNTER.textContent = `${index + 1} / ${eras.length}`;
+    S._trayOrder.forEach(layerId => {
+      if (placed.has(layerId)) return;
+      const layer = PUZZLE_LAYERS.find(l => l.id === layerId);
 
-    // Update info card content
-    INFO_TITLE.textContent = era.info.title;
-    INFO_BODY.textContent = era.info.body;
-    INFO_SOURCE.textContent = era.info.source;
+      const piece = document.createElement('div');
+      piece.className       = 'pz-piece';
+      piece.draggable       = true;
+      piece.dataset.layerId = layerId;
 
-    // Update timeline
-    const pct = percentForYear(era.yearNumeric) / 100;
-    setHandleAndProgress(pct);
+      piece.innerHTML = `
+        <div class="pz-piece-inner">
+          <span class="pz-piece-name">${layer.name}</span>
+          <span class="pz-piece-zh">${layer.nameZh}</span>
+        </div>
+        <svg class="pz-piece-drag-icon" width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <circle cx="9" cy="7" r="1.5" fill="currentColor"/><circle cx="15" cy="7" r="1.5" fill="currentColor"/>
+          <circle cx="9" cy="12" r="1.5" fill="currentColor"/><circle cx="15" cy="12" r="1.5" fill="currentColor"/>
+          <circle cx="9" cy="17" r="1.5" fill="currentColor"/><circle cx="15" cy="17" r="1.5" fill="currentColor"/>
+        </svg>
+      `;
 
-    // Update dots
-    const dots = ERA_DOTS.querySelectorAll('.era-dot-mark');
-    dots.forEach((d, i) => d.classList.toggle('active', i === index));
+      // Desktop drag
+      piece.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('layerId', layerId);
+        e.dataTransfer.setData('fromSlot', '');
+        piece.classList.add('pz-dragging');
+      });
+      piece.addEventListener('dragend', () => piece.classList.remove('pz-dragging'));
 
-    const dotBtns = DOT_NAV.querySelectorAll('.dot-btn');
-    dotBtns.forEach((b, i) => {
-      b.classList.toggle('active', i === index);
-      b.setAttribute('aria-selected', i === index ? 'true' : 'false');
+      // Mobile tap-select
+      piece.addEventListener('click', () => {
+        if (S._selectedPiece === layerId) {
+          S._selectedPiece = null;
+          piece.classList.remove('pz-selected');
+        } else {
+          S._selectedPiece = layerId;
+          tray.querySelectorAll('.pz-piece').forEach(p => p.classList.remove('pz-selected'));
+          piece.classList.add('pz-selected');
+        }
+      });
+
+      tray.appendChild(piece);
     });
 
-    // Update nav buttons
-    NAV_PREV.disabled = index === 0;
-    NAV_NEXT.disabled = index === eras.length - 1;
-
-    // Hide info card on era change? Optional. Let's keep it open if user wants? But probably close it.
-    INFO_CARD.classList.add('hidden');
-  }
-
-  function hideHint() {
-    if (!hintShown) {
-      hintShown = true;
-      SWIPE_HINT.classList.add('gone');
+    if (tray.children.length === 0) {
+      const done = document.createElement('p');
+      done.className   = 'pz-tray-done';
+      done.textContent = 'All pieces placed';
+      tray.appendChild(done);
     }
   }
+
+  function clearSlotFeedback() {
+    document.getElementById('pz-slots')?.querySelectorAll('.pz-slot').forEach(s => {
+      s.classList.remove('pz-correct', 'pz-wrong');
+    });
+    const fb = document.getElementById('pz-feedback');
+    if (fb) fb.classList.add('hidden');
+    S._selectedPiece = null;
+  }
+
+  function checkPuzzle() {
+    const fb      = document.getElementById('pz-feedback');
+    const success = document.getElementById('pz-success');
+    const slots   = document.getElementById('pz-slots');
+
+    // All slots must be filled
+    if (S.puzzleSlots.some(s => s === null)) {
+      fb.classList.remove('hidden');
+      fb.textContent = `Fill all 5 slots before checking. (${S.puzzleSlots.filter(Boolean).length}/5 placed)`;
+      success.classList.add('hidden');
+      return;
+    }
+
+    let correct = 0;
+    S.puzzleSlots.forEach((layerId, i) => {
+      const slotEl = slots.children[i];
+      slotEl.classList.remove('pz-correct', 'pz-wrong');
+      const isCorrect = layerId === PUZZLE_LAYERS[i].id;
+      slotEl.classList.add(isCorrect ? 'pz-correct' : 'pz-wrong');
+      if (isCorrect) correct++;
+    });
+
+    if (correct === PUZZLE_LAYERS.length) {
+      fb.classList.add('hidden');
+      success.classList.remove('hidden');
+    } else {
+      success.classList.add('hidden');
+      fb.classList.remove('hidden');
+      fb.textContent = `${correct} of ${PUZZLE_LAYERS.length} correct. Green = right position, red = wrong position.`;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     TREASURE HUNT
+  ═══════════════════════════════════════════════════════════ */
+  function initTreasure() {
+    S.tFound = new Array(TREASURE_DATA.length).fill(false);
+    S.tIndex = 0;
+    renderTreasure();
+
+    T_PREV.addEventListener('click', () => {
+      if (S.tIndex > 0) { S.tIndex--; renderTreasure(); }
+    });
+    T_NEXT.addEventListener('click', () => {
+      if (S.tIndex < TREASURE_DATA.length - 1) { S.tIndex++; renderTreasure(); }
+    });
+  }
+
+  function renderTreasure() {
+    const item  = TREASURE_DATA[S.tIndex];
+    const era   = eras.find(e => e.id === item.eraId) || eras[S.tIndex];
+    const found = S.tFound[S.tIndex];
+
+    // Cancel any pending hint from the previous era and clear hint state
+    if (S._tHintTimer) { clearTimeout(S._tHintTimer); S._tHintTimer = null; }
+    T_HIT_ZONE.classList.remove('hint');
+
+    T_CLUE.textContent      = found ? `✦ Found: ${item.relic}` : item.clue;
+    T_ERA_LABEL.textContent = `${era.period} · ${era.year}`;
+
+    // Photo load with placeholder
+    T_PH_ZH.textContent         = era.placeholderZh || '';
+    T_PLACEHOLDER.style.display = 'flex';
+    T_PHOTO.style.opacity       = '0';
+
+    const img   = new Image();
+    img.onload  = () => {
+      T_PHOTO.src           = era.photo;
+      T_PHOTO.style.filter  = `sepia(${era.sepia * 0.6}) contrast(1.05) brightness(0.9)`;
+      T_PHOTO.style.opacity = '1';
+      T_PLACEHOLDER.style.display = 'none';
+    };
+    img.onerror = () => {
+      T_PLACEHOLDER.style.display = 'flex';
+    };
+    img.src = era.photo;
+
+    // Badge
+    T_BADGE.textContent = `✦ ${item.relic}`;
+    T_BADGE.classList.toggle('hidden', !found);
+
+    // Hit zone (always present, just won't fire if already found)
+    const z = item.zone;
+    T_HIT_ZONE.style.left   = z.x + '%';
+    T_HIT_ZONE.style.top    = z.y + '%';
+    T_HIT_ZONE.style.width  = z.w + '%';
+    T_HIT_ZONE.style.height = z.h + '%';
+    T_HIT_ZONE.style.cursor = found ? 'default' : 'crosshair';
+    T_HIT_ZONE.onclick      = found ? null : onRelicFound;
+
+    // Nav
+    T_PREV.disabled = S.tIndex === 0;
+    T_NEXT.disabled = S.tIndex === TREASURE_DATA.length - 1;
+
+    // Progress
+    const count = S.tFound.filter(Boolean).length;
+    T_PROGRESS.textContent = `${count} / ${TREASURE_DATA.length} found`;
+
+    // After a few seconds of no progress, gently glow the hidden zone
+    if (!found) {
+      S._tHintTimer = setTimeout(() => {
+        if (!S.tFound[S.tIndex]) T_HIT_ZONE.classList.add('hint');
+      }, 6000);
+    }
+  }
+
+  function onRelicFound() {
+    S.tFound[S.tIndex] = true;
+    const item  = TREASURE_DATA[S.tIndex];
+    const count = S.tFound.filter(Boolean).length;
+
+    if (S._tHintTimer) { clearTimeout(S._tHintTimer); S._tHintTimer = null; }
+    T_HIT_ZONE.classList.remove('hint');
+
+    T_BADGE.textContent = `✦ ${item.relic}`;
+    T_BADGE.classList.remove('hidden');
+    T_CLUE.textContent      = `✦ Found: ${item.relic}`;
+    T_HIT_ZONE.onclick      = null;
+    T_HIT_ZONE.style.cursor = 'default';
+    T_PROGRESS.textContent  = `${count} / ${TREASURE_DATA.length} found`;
+
+    launchFireworks();
+
+    if (count === TREASURE_DATA.length) {
+      setTimeout(() => {
+        T_CLUE.textContent = '✦ All relics recovered! Chang Gate\'s history is complete.';
+      }, 1800);
+    }
+  }
+
+  /* ── Fireworks ──────────────────────────────────────────── */
+  function launchFireworks() {
+    const ctx  = FW_CANVAS.getContext('2d');
+    const rect = FW_CANVAS.parentElement.getBoundingClientRect();
+    FW_CANVAS.width  = rect.width;
+    FW_CANVAS.height = rect.height;
+
+    const COLORS = ['#c8a96e', '#e8d4a0', '#ffffff', '#f0c060', '#a8d8a8'];
+    const bursts = [
+      { cx: rect.width * 0.3, cy: rect.height * 0.35 },
+      { cx: rect.width * 0.7, cy: rect.height * 0.25 },
+      { cx: rect.width * 0.5, cy: rect.height * 0.45 }
+    ];
+
+    const particles = [];
+    bursts.forEach(({ cx, cy }) => {
+      for (let i = 0; i < 40; i++) {
+        const angle = (Math.PI * 2 * i) / 40;
+        const speed = 1.5 + Math.random() * 3.5;
+        particles.push({
+          x: cx, y: cy,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1.5,
+          alpha: 1,
+          color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          size: 1.5 + Math.random() * 2.5
+        });
+      }
+    });
+
+    let rafId;
+    function animate() {
+      ctx.clearRect(0, 0, FW_CANVAS.width, FW_CANVAS.height);
+      let alive = false;
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        p.vy += 0.1;
+        p.alpha -= 0.016;
+        if (p.alpha > 0) {
+          alive = true;
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle   = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+      ctx.globalAlpha = 1;
+      if (alive) rafId = requestAnimationFrame(animate);
+      else ctx.clearRect(0, 0, FW_CANVAS.width, FW_CANVAS.height);
+    }
+    animate();
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     MAP — Apple Maps-style with level buttons + smooth pan/zoom
+  ═══════════════════════════════════════════════════════════ */
+  function initMap() {
+    renderMapLevel(S.mapLevel);
+
+    // Level buttons
+    document.querySelectorAll('.map-level-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lvl = parseInt(btn.dataset.level);
+        setMapLevel(lvl);
+      });
+    });
+
+    // Zoom controls
+    document.getElementById('map-zoom-in').addEventListener('click', () => {
+      setMapLevel(Math.min(S.mapLevel + 1, 2));
+    });
+    document.getElementById('map-zoom-out').addEventListener('click', () => {
+      setMapLevel(Math.max(S.mapLevel - 1, 0));
+    });
+  }
+
+  function setMapLevel(lvl) {
+    S.mapLevel = lvl;
+
+    document.querySelectorAll('.map-level-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.level) === lvl);
+    });
+
+    renderMapLevel(lvl);
+  }
+
+  function renderMapLevel(lvl) {
+    // Animate out then in
+    MAP_SVG_WRAP.style.opacity   = '0';
+    MAP_SVG_WRAP.style.transform = 'scale(0.96)';
+    setTimeout(() => {
+      MAP_SVG_WRAP.innerHTML = lvl === 0 ? buildMapChina() :
+                               lvl === 1 ? buildMapSuzhou() :
+                                           buildMapDistrict();
+      MAP_SVG_WRAP.style.opacity   = '1';
+      MAP_SVG_WRAP.style.transform = 'scale(1)';
+    }, 220);
+  }
+
+  function buildMapChina() {
+    return `<svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background -->
+      <rect width="400" height="320" fill="#1c2a3a"/>
+      <!-- Sea/water areas -->
+      <rect width="400" height="320" fill="#1e3448" opacity="0.5"/>
+      <!-- Grid -->
+      ${Array.from({length:9},(_,i)=>`<line x1="${i*50}" y1="0" x2="${i*50}" y2="320" stroke="#ffffff" stroke-width="0.3" opacity="0.06"/>`).join('')}
+      ${Array.from({length:7},(_,i)=>`<line x1="0" y1="${i*54}" x2="400" y2="${i*54}" stroke="#ffffff" stroke-width="0.3" opacity="0.06"/>`).join('')}
+      <!-- China landmass -->
+      <path d="M55,38 L100,28 L165,22 L225,32 L285,26 L335,44 L362,72
+               L372,104 L355,134 L338,154 L348,184 L328,214 L296,235
+               L265,256 L235,266 L205,260 L175,270 L142,258 L118,242
+               L95,222 L72,198 L55,172 L40,145 L36,115 L46,86 L55,60 Z"
+            fill="#2d4a3e" stroke="#4a7a6a" stroke-width="1"/>
+      <!-- Inner terrain texture -->
+      <path d="M120,80 Q160,70 200,85 Q240,100 260,130 Q250,160 220,170 Q180,175 150,155 Q120,135 120,105 Z"
+            fill="#2a5040" opacity="0.4"/>
+      <!-- Jiangsu province -->
+      <path d="M268,128 L302,122 L318,138 L312,168 L296,184 L274,178 L258,162 L260,138 Z"
+            fill="#3a6a5a" stroke="#5aaa8a" stroke-width="1.2" stroke-dasharray="5 3"/>
+      <text x="280" y="155" text-anchor="middle" fill="#5aaa8a" font-family="DM Sans,sans-serif" font-size="8" opacity="0.8">Jiangsu</text>
+      <!-- Yangtze river -->
+      <path d="M40,118 Q120,108 200,115 Q270,122 330,110 Q360,105 400,112"
+            fill="none" stroke="#4488bb" stroke-width="3" opacity="0.6"/>
+      <!-- Beijing dot -->
+      <circle cx="268" cy="78" r="3" fill="#8ab4d4" opacity="0.6"/>
+      <text x="274" y="81" fill="#8ab4d4" font-family="DM Sans,sans-serif" font-size="7.5" opacity="0.7">Beijing</text>
+      <!-- Shanghai dot -->
+      <circle cx="306" cy="162" r="3" fill="#8ab4d4" opacity="0.5"/>
+      <text x="312" y="165" fill="#8ab4d4" font-family="DM Sans,sans-serif" font-size="7" opacity="0.5">Shanghai</text>
+      <!-- Suzhou pin -->
+      <g transform="translate(292,150)">
+        <circle r="10" fill="rgba(200,100,80,0.2)"/>
+        <circle r="10" fill="none" stroke="#e05050" stroke-width="1" opacity="0.5">
+          <animate attributeName="r" from="8" to="16" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" from="0.6" to="0" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <path d="M0,-14 C-5,-14 -8,-10 -8,-6 C-8,2 0,10 0,10 C0,10 8,2 8,-6 C8,-10 5,-14 0,-14 Z"
+              fill="#e05050" stroke="#ff7070" stroke-width="0.8"/>
+        <circle cx="0" cy="-6" r="3" fill="white" opacity="0.9"/>
+      </g>
+      <text x="305" y="147" fill="#ff9090" font-family="DM Sans,sans-serif" font-size="8.5" font-weight="500">Suzhou</text>
+      <text x="305" y="157" fill="#cc7070" font-family="DM Sans,sans-serif" font-size="7">苏州</text>
+      <!-- Zoom hint box -->
+      <rect x="258" y="120" width="70" height="68" rx="3"
+            fill="none" stroke="#e05050" stroke-width="0.8" stroke-dasharray="4 3" opacity="0.5"/>
+      <!-- Scale bar -->
+      <g transform="translate(20,296)">
+        <line x1="0" y1="0" x2="80" y2="0" stroke="#8ab4d4" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <line x1="0" y1="-4" x2="0" y2="4" stroke="#8ab4d4" stroke-width="1" opacity="0.6"/>
+        <line x1="80" y1="-4" x2="80" y2="4" stroke="#8ab4d4" stroke-width="1" opacity="0.6"/>
+        <text x="40" y="-6" text-anchor="middle" fill="#8ab4d4" font-family="DM Sans,sans-serif" font-size="7" opacity="0.6">500 km</text>
+      </g>
+    </svg>`;
+  }
+
+  function buildMapSuzhou() {
+    return `<svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="320" fill="#1c2a3a"/>
+      ${Array.from({length:17},(_,i)=>`<line x1="${i*25}" y1="0" x2="${i*25}" y2="320" stroke="#ffffff" stroke-width="0.3" opacity="0.07"/>`).join('')}
+      ${Array.from({length:13},(_,i)=>`<line x1="0" y1="${i*27}" x2="400" y2="${i*27}" stroke="#ffffff" stroke-width="0.3" opacity="0.07"/>`).join('')}
+      <!-- Taihu Lake -->
+      <ellipse cx="140" cy="230" rx="100" ry="68"
+               fill="#1e3448" stroke="#2a5070" stroke-width="1.2"/>
+      <text x="140" y="233" text-anchor="middle" fill="#4a88aa" font-family="DM Sans,sans-serif" font-size="9" opacity="0.8">Taihu Lake · 太湖</text>
+      <!-- Yangcheng Lake (east) -->
+      <ellipse cx="310" cy="160" rx="35" ry="25"
+               fill="#1e3448" stroke="#2a5070" stroke-width="0.8" opacity="0.7"/>
+      <text x="310" y="163" text-anchor="middle" fill="#4a88aa" font-family="DM Sans,sans-serif" font-size="7" opacity="0.6">Yangcheng Lake</text>
+      <!-- Grand Canal -->
+      <path d="M220,0 Q224,80 226,160 Q228,240 224,320"
+            fill="none" stroke="#2a6090" stroke-width="8" opacity="0.5"/>
+      <path d="M220,0 Q224,80 226,160 Q228,240 224,320"
+            fill="none" stroke="#4a90c0" stroke-width="1.5" opacity="0.4"/>
+      <text x="234" y="80" fill="#4a90c0" font-family="DM Sans,sans-serif" font-size="7.5" opacity="0.7"
+            transform="rotate(90,234,80)">Grand Canal · 大运河</text>
+      <!-- Roads -->
+      <line x1="0" y1="160" x2="400" y2="160" stroke="#2e3e4e" stroke-width="5"/>
+      <line x1="200" y1="0" x2="200" y2="320" stroke="#2e3e4e" stroke-width="4"/>
+      <line x1="0" y1="160" x2="400" y2="160" stroke="#4a5a6a" stroke-width="0.8" opacity="0.4"/>
+      <!-- Suzhou old city wall ring -->
+      <ellipse cx="248" cy="155" rx="46" ry="36"
+               fill="rgba(50,80,60,0.2)" stroke="#5a9a7a" stroke-width="1.2"
+               stroke-dasharray="6 3"/>
+      <!-- Tiger Hill -->
+      <g transform="translate(210,118)">
+        <polygon points="0,-10 10,0 -10,0" fill="#7a6a4a" opacity="0.8"/>
+        <circle r="5" fill="#9a8a6a" opacity="0.6"/>
+      </g>
+      <text x="222" y="113" fill="#9a8a6a" font-family="DM Sans,sans-serif" font-size="7.5" opacity="0.8">Tiger Hill · 虎丘</text>
+      <!-- Hanshan Temple -->
+      <circle cx="232" cy="178" r="5" fill="#2a5040" stroke="#5a9a7a" stroke-width="1"/>
+      <text x="240" y="181" fill="#5a9a7a" font-family="DM Sans,sans-serif" font-size="7.5" opacity="0.8">Hanshan Temple · 寒山寺</text>
+      <!-- Chang Gate pin -->
+      <g transform="translate(234,152)">
+        <circle r="12" fill="rgba(200,100,80,0.15)"/>
+        <circle r="12" fill="none" stroke="#e05050" stroke-width="1" opacity="0.4">
+          <animate attributeName="r" from="10" to="20" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" from="0.5" to="0" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <path d="M0,-16 C-6,-16 -10,-11 -10,-7 C-10,2 0,12 0,12 C0,12 10,2 10,-7 C10,-11 6,-16 0,-16 Z"
+              fill="#e05050" stroke="#ff7070" stroke-width="0.8"/>
+        <circle cx="0" cy="-7" r="3.5" fill="white" opacity="0.9"/>
+      </g>
+      <text x="248" y="147" fill="#ff9090" font-family="DM Sans,sans-serif" font-size="9" font-weight="500">Chang Gate</text>
+      <text x="248" y="158" fill="#cc7070" font-family="DM Sans,sans-serif" font-size="7.5">阊门</text>
+      <!-- Zoom box hint -->
+      <rect x="210" y="130" width="80" height="55" rx="3"
+            fill="none" stroke="#e05050" stroke-width="0.8" stroke-dasharray="4 3" opacity="0.5"/>
+      <!-- Scale -->
+      <g transform="translate(16,298)">
+        <line x1="0" y1="0" x2="70" y2="0" stroke="#8ab4d4" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        <line x1="0" y1="-4" x2="0" y2="4" stroke="#8ab4d4" stroke-width="1" opacity="0.5"/>
+        <line x1="70" y1="-4" x2="70" y2="4" stroke="#8ab4d4" stroke-width="1" opacity="0.5"/>
+        <text x="35" y="-6" text-anchor="middle" fill="#8ab4d4" font-family="DM Sans,sans-serif" font-size="7" opacity="0.5">5 km</text>
+      </g>
+      <!-- North -->
+      <g transform="translate(376,22)">
+        <circle r="13" fill="rgba(20,40,60,0.85)" stroke="#4a7a9a" stroke-width="0.8"/>
+        <polygon points="0,-8 3,0 0,-2 -3,0" fill="#e05050"/>
+        <polygon points="0,8 -3,0 0,2 3,0" fill="#8ab4d4" opacity="0.4"/>
+        <text x="0" y="4" text-anchor="middle" fill="#8ab4d4" font-family="DM Sans,sans-serif" font-size="7" font-weight="500">N</text>
+      </g>
+    </svg>`;
+  }
+
+  function buildMapDistrict() {
+    return `<svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="320" fill="#1c2a3a"/>
+      ${Array.from({length:21},(_,i)=>`<line x1="${i*20}" y1="0" x2="${i*20}" y2="320" stroke="#ffffff" stroke-width="0.3" opacity="0.07"/>`).join('')}
+      ${Array.from({length:17},(_,i)=>`<line x1="0" y1="${i*20}" x2="400" y2="${i*20}" stroke="#ffffff" stroke-width="0.3" opacity="0.07"/>`).join('')}
+      <!-- Land background (city blocks) -->
+      <rect width="400" height="320" fill="#243040" opacity="0.5"/>
+      <!-- City blocks (rough grid of dark rectangles for urban feel) -->
+      <rect x="110" y="30"  width="70"  height="40"  rx="2" fill="#1e2d3a" opacity="0.8"/>
+      <rect x="200" y="30"  width="90"  height="35"  rx="2" fill="#1e2d3a" opacity="0.8"/>
+      <rect x="310" y="30"  width="80"  height="50"  rx="2" fill="#1e2d3a" opacity="0.8"/>
+      <rect x="110" y="100" width="55"  height="60"  rx="2" fill="#1e2d3a" opacity="0.8"/>
+      <rect x="185" y="100" width="100" height="50"  rx="2" fill="#1e2d3a" opacity="0.8"/>
+      <rect x="305" y="95"  width="90"  height="70"  rx="2" fill="#1e2d3a" opacity="0.8"/>
+      <rect x="110" y="190" width="80"  height="80"  rx="2" fill="#1e2d3a" opacity="0.8"/>
+      <rect x="210" y="195" width="80"  height="70"  rx="2" fill="#1e2d3a" opacity="0.8"/>
+      <rect x="310" y="185" width="85"  height="80"  rx="2" fill="#1e2d3a" opacity="0.8"/>
+      <!-- Western Ring Canal (main) -->
+      <path d="M72,0 Q68,60 66,120 Q64,185 68,250 Q72,290 76,320"
+            fill="none" stroke="#1e3f5a" stroke-width="14"/>
+      <path d="M72,0 Q68,60 66,120 Q64,185 68,250 Q72,290 76,320"
+            fill="none" stroke="#3a7aaa" stroke-width="2" opacity="0.5"/>
+      <text x="30" y="160" fill="#4a8aba" font-family="DM Sans,sans-serif" font-size="6.5" opacity="0.7"
+            transform="rotate(-90,30,160)">Western Ring Canal</text>
+      <!-- Shantang Canal (diagonal) -->
+      <path d="M76,152 Q130,118 180,96 Q214,80 240,68"
+            fill="none" stroke="#1e3f5a" stroke-width="9"/>
+      <path d="M76,152 Q130,118 180,96 Q214,80 240,68"
+            fill="none" stroke="#3a7aaa" stroke-width="1.5" opacity="0.4"/>
+      <!-- Shantang Street (road beside canal) -->
+      <path d="M76,162 Q130,128 180,106 Q214,90 240,78"
+            fill="none" stroke="#2e4054" stroke-width="5"/>
+      <path d="M76,162 Q130,128 180,106 Q214,90 240,78"
+            fill="none" stroke="#c8a96e" stroke-width="0.8" opacity="0.4"/>
+      <text x="140" y="114" fill="#c8a96e" font-family="DM Sans,sans-serif" font-size="7"
+            opacity="0.6" transform="rotate(-28,140,114)">Shantang Street · 山塘街</text>
+      <!-- Main road (E-W) -->
+      <rect x="0" y="155" width="400" height="10" fill="#263646"/>
+      <line x1="0" y1="160" x2="400" y2="160" stroke="#c8a96e" stroke-width="0.6" opacity="0.2"/>
+      <text x="340" y="153" fill="#8a9aaa" font-family="DM Sans,sans-serif" font-size="6.5" opacity="0.6">Cangjie Rd</text>
+      <!-- City wall remnant -->
+      <path d="M68,85 L70,235" stroke="#7a6a4a" stroke-width="4" opacity="0.4" stroke-dasharray="10 5"/>
+      <text x="58" y="80" fill="#9a8a6a" font-family="DM Sans,sans-serif" font-size="6.5" opacity="0.5"
+            transform="rotate(-90,58,80)">City Wall</text>
+      <!-- Hanshan Temple -->
+      <g transform="translate(148,208)">
+        <rect x="-8" y="-8" width="16" height="16" rx="2" fill="#1e3a2e" stroke="#4a8a6a" stroke-width="1"/>
+        <path d="M-8,-8 Q0,-14 8,-8" fill="#2a5040" stroke="#4a8a6a" stroke-width="0.8"/>
+      </g>
+      <text x="160" y="205" fill="#5a9a7a" font-family="DM Sans,sans-serif" font-size="7" opacity="0.8">Hanshan Temple</text>
+      <text x="160" y="214" fill="#4a8a6a" font-family="DM Sans,sans-serif" font-size="6.5" opacity="0.6">寒山寺</text>
+      <!-- Tiger Hill -->
+      <g transform="translate(240,62)">
+        <polygon points="0,-12 12,4 -12,4" fill="#5a5040" opacity="0.8"/>
+        <polygon points="0,-8 8,4 -8,4" fill="#7a6a4a" opacity="0.6"/>
+      </g>
+      <text x="254" y="60" fill="#9a8a6a" font-family="DM Sans,sans-serif" font-size="7" opacity="0.8">Tiger Hill · 虎丘</text>
+      <!-- Chang Gate structure -->
+      <g transform="translate(72,150)">
+        <!-- Gate body -->
+        <rect x="-22" y="-24" width="44" height="30" rx="2" fill="#2a3a4a" stroke="#c8a96e" stroke-width="1.5"/>
+        <!-- Roof -->
+        <path d="M-22,-24 Q0,-36 22,-24" fill="#3a4a5a" stroke="#c8a96e" stroke-width="1.2"/>
+        <!-- Arch -->
+        <path d="M-8,6 L-8,-4 Q0,-14 8,-4 L8,6 Z" fill="#1a2a3a" stroke="#c8a96e" stroke-width="1"/>
+        <!-- Windows -->
+        <rect x="-18" y="-18" width="8" height="7" rx="1" fill="#1a2a3a" stroke="#c8a96e" stroke-width="0.7" opacity="0.7"/>
+        <rect x="10"  y="-18" width="8" height="7" rx="1" fill="#1a2a3a" stroke="#c8a96e" stroke-width="0.7" opacity="0.7"/>
+        <!-- Pulse rings -->
+        <circle r="28" fill="none" stroke="#e05050" stroke-width="1" opacity="0.3">
+          <animate attributeName="r" from="20" to="36" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" from="0.4" to="0" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Pin dot -->
+        <circle cy="-42" r="4" fill="#e05050"/>
+        <circle cy="-42" r="2" fill="white" opacity="0.9"/>
+        <line x1="0" y1="-38" x2="0" y2="-24" stroke="#e05050" stroke-width="1.2" opacity="0.7"/>
+      </g>
+      <!-- Chang Gate label callout -->
+      <rect x="100" y="126" width="110" height="32" rx="5"
+            fill="#111d28" stroke="#c8a96e" stroke-width="1"/>
+      <text x="155" y="140" text-anchor="middle" fill="#ffb090" font-family="DM Sans,sans-serif" font-size="9" font-weight="500">Chang Gate · 阊门</text>
+      <text x="155" y="152" text-anchor="middle" fill="#c8a96e" font-family="DM Sans,sans-serif" font-size="7" opacity="0.8">514 BCE — Present</text>
+      <!-- Callout line -->
+      <path d="M100,142 Q86,148 72,146" fill="none" stroke="#c8a96e" stroke-width="0.8" opacity="0.6"/>
+      <!-- Scale -->
+      <g transform="translate(290,300)">
+        <line x1="0" y1="0" x2="80" y2="0" stroke="#8ab4d4" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        <line x1="0" y1="-4" x2="0" y2="4" stroke="#8ab4d4" stroke-width="1" opacity="0.5"/>
+        <line x1="80" y1="-4" x2="80" y2="4" stroke="#8ab4d4" stroke-width="1" opacity="0.5"/>
+        <text x="40" y="-6" text-anchor="middle" fill="#8ab4d4" font-family="DM Sans,sans-serif" font-size="7" opacity="0.5">500 m</text>
+      </g>
+      <!-- North arrow -->
+      <g transform="translate(376,22)">
+        <circle r="13" fill="rgba(20,40,60,0.9)" stroke="#4a7a9a" stroke-width="0.8"/>
+        <polygon points="0,-8 3,0 0,-2 -3,0" fill="#e05050"/>
+        <polygon points="0,8 -3,0 0,2 3,0" fill="#8ab4d4" opacity="0.4"/>
+        <text x="0" y="4" text-anchor="middle" fill="#8ab4d4" font-family="DM Sans,sans-serif" font-size="7" font-weight="500">N</text>
+      </g>
+    </svg>`;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CHAT
+  ═══════════════════════════════════════════════════════════ */
+  CHAT_FAB.addEventListener('click', openChat);
+  CHAT_CLOSE.addEventListener('click', closeChat);
+  CHAT_BACKDROP.addEventListener('click', closeChat);
+  CHAT_SEND.addEventListener('click', sendChat);
+  CHAT_INPUT.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+
+  CHAT_CHIPS.addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    CHAT_CHIPS.remove();
+    sendMessage(chip.getAttribute('data-q'));
+  });
+
+  function openChat() {
+    S.chatOpen = true;
+    CHAT_PANEL.classList.remove('hidden');
+    CHAT_BACKDROP.classList.remove('hidden');
+    CHAT_FAB.style.display = 'none';
+    setTimeout(() => CHAT_INPUT.focus(), 350);
+  }
+  function closeChat() {
+    S.chatOpen = false;
+    CHAT_PANEL.classList.add('hidden');
+    CHAT_BACKDROP.classList.add('hidden');
+    CHAT_FAB.style.display = '';
+  }
+  async function sendChat() {
+    const text = CHAT_INPUT.value.trim();
+    if (!text) return;
+    CHAT_INPUT.value = '';
+    sendMessage(text);
+  }
+  async function sendMessage(text) {
+    appendMsg('user', text);
+    const thinking = appendThinking();
+
+    // Brief delay so the response feels considered, not instant
+    await new Promise(r => setTimeout(r, 450 + Math.random() * 350));
+
+    const reply = answerLocally(text);
+    thinking.remove();
+    appendMsg('assistant', reply);
+  }
+
+  function answerLocally(text) {
+    const q = text.toLowerCase();
+
+    // Score each KB entry by total length of matched keys (longer keys = more specific)
+    let best = { score: 0, entry: null };
+    for (const entry of CHAT_KB) {
+      let score = 0;
+      for (const key of entry.keys) {
+        if (q.includes(key.toLowerCase())) score += key.length;
+      }
+      if (score > best.score) best = { score, entry };
+    }
+    if (best.entry) return best.entry.answer;
+
+    // Fallback: match a dynasty/era keyword and return that era's info
+    const eraMatch = eras.find(era => {
+      const id    = era.id.toLowerCase();
+      const first = era.period.toLowerCase().split(/[ &]/)[0];
+      return q.includes(id) || (first.length > 3 && q.includes(first));
+    });
+    if (eraMatch) {
+      return `${eraMatch.info.title}\n\n${eraMatch.info.body}`;
+    }
+
+    // Default: suggest topics
+    return "I can tell you about Chang Gate's founding by Wu Zixu, the Tang poet Zhang Ji and the Maple Bridge poem, the Song-era Pingjiang Map, Ming fortifications, the Taiping Rebellion, the Grand Canal, Suzhou's silk trade, Hanshan Temple, Shantang Street, the classical gardens, or the gate's modern restoration. What would you like to explore?";
+  }
+
+  function appendMsg(role, text) {
+    const div = document.createElement('div');
+    div.className = `chat-msg ${role}`;
+    text.split('\n\n').forEach(para => {
+      if (!para.trim()) return;
+      const p = document.createElement('p');
+      p.textContent = para.trim();
+      div.appendChild(p);
+    });
+    CHAT_MSGS.appendChild(div);
+    CHAT_MSGS.scrollTop = CHAT_MSGS.scrollHeight;
+    return div;
+  }
+  function appendThinking() {
+    const div = document.createElement('div');
+    div.className = 'chat-msg thinking';
+    div.innerHTML = `<span class="thinking-dots"><span>·</span><span>·</span><span>·</span></span>`;
+    CHAT_MSGS.appendChild(div);
+    CHAT_MSGS.scrollTop = CHAT_MSGS.scrollHeight;
+    return div;
+  }
+
 })();
